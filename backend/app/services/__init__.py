@@ -1,5 +1,7 @@
 """
-Services package exposing storage, parser, chunker, embedding, vector store, BM25, and indexing services.
+Services package exposing storage, parser, chunker, embedding, vector store, BM25,
+dual indexing, query analysis, fusion, hybrid retrieval, evaluation, optimizer,
+cross-encoder reranking, context compression, evidence selection, and reranking pipeline.
 """
 from backend.app.services.storage import (
     LocalFileStorage,
@@ -51,6 +53,45 @@ from backend.app.services.dual_indexer import (
     DualIndexingService,
     dual_indexing_service,
 )
+from backend.app.services.query_analyzer import (
+    QueryAnalyzer,
+    query_analyzer,
+)
+from backend.app.services.fusion import (
+    FusionEngine,
+    fusion_engine,
+)
+from backend.app.services.hybrid_retriever import (
+    HybridRetrievalService,
+    HybridRetrievalError,
+    hybrid_retriever,
+)
+from backend.app.services.evaluator import (
+    RetrievalEvaluator,
+    retrieval_evaluator,
+)
+from backend.app.services.retrieval_optimizer import (
+    RetrievalOptimizer,
+    retrieval_optimizer,
+)
+from backend.app.services.cross_encoder import (
+    CrossEncoderRerankerService,
+    RerankerError,
+    ModelInitializationError,
+    cross_encoder_service,
+)
+from backend.app.services.context_compressor import (
+    ContextCompressionService,
+    context_compressor,
+)
+from backend.app.services.evidence_selector import (
+    EvidenceSelector,
+    evidence_selector,
+)
+from backend.app.services.reranking_pipeline import (
+    RerankingPipelineService,
+    reranking_pipeline,
+)
 
 __all__ = [
     "LocalFileStorage",
@@ -87,4 +128,25 @@ __all__ = [
     "bm25_service",
     "DualIndexingService",
     "dual_indexing_service",
+    "QueryAnalyzer",
+    "query_analyzer",
+    "FusionEngine",
+    "fusion_engine",
+    "HybridRetrievalService",
+    "HybridRetrievalError",
+    "hybrid_retriever",
+    "RetrievalEvaluator",
+    "retrieval_evaluator",
+    "RetrievalOptimizer",
+    "retrieval_optimizer",
+    "CrossEncoderRerankerService",
+    "RerankerError",
+    "ModelInitializationError",
+    "cross_encoder_service",
+    "ContextCompressionService",
+    "context_compressor",
+    "EvidenceSelector",
+    "evidence_selector",
+    "RerankingPipelineService",
+    "reranking_pipeline",
 ]

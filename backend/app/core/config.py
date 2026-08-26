@@ -68,6 +68,36 @@ class Settings(BaseSettings):
     BM25_INDEX_PATH: str = "data/bm25_index.pkl"
     BM25_AUTO_PERSIST: bool = True
 
+    # Hybrid Retrieval & Rank Fusion Settings
+    HYBRID_DENSE_TOP_K: int = 50
+    HYBRID_SPARSE_TOP_K: int = 50
+    HYBRID_FINAL_TOP_K: int = 10
+    HYBRID_RRF_K: int = 60
+    HYBRID_DENSE_WEIGHT: float = 0.6
+    HYBRID_SPARSE_WEIGHT: float = 0.4
+    HYBRID_FUSION_STRATEGY: str = "rrf"
+    HYBRID_RETRIEVAL_TIMEOUT_SECONDS: float = 5.0
+    HYBRID_ENABLE_QUERY_AWARE_TUNING: bool = True
+
+    # Phase 7 Cross-Encoder Reranking Settings
+    RERANKER_ENABLED: bool = True
+    RERANKER_MODEL_NAME: str = "cross-encoder/ms-marco-MiniLM-L-6-v2"
+    RERANKER_ONNX_FILENAME: str = "onnx/model.onnx"
+    RERANKER_TOP_K: int = 10
+    RERANKER_CANDIDATE_WINDOW: int = 25
+    RERANKER_BATCH_SIZE: int = 16
+    RERANKER_MAX_LENGTH: int = 512
+    RERANKER_QUERY_MAX_TOKENS: int = 128
+    RERANKER_TIMEOUT_SECONDS: float = 3.0
+
+    # Phase 7 Context Compression & Evidence Selection Settings
+    COMPRESSION_ENABLED: bool = True
+    COMPRESSION_TARGET_TOKENS_PER_CHUNK: int = 150
+    COMPRESSION_MAX_CONTEXT_TOKENS: int = 1500
+    COMPRESSION_PRESERVE_TABLES: bool = True
+    DIVERSITY_NEAR_DUPLICATE_THRESHOLD: float = 0.85
+    DIVERSITY_MAX_CHUNKS_PER_SECTION: int = 2
+
     # Database Settings
     POSTGRES_SERVER: str = "localhost"
     POSTGRES_PORT: int = 5432

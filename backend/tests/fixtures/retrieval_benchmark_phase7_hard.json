@@ -1,0 +1,216 @@
+{
+  "benchmark_version": "1.0.0",
+  "description": "Hard enterprise retrieval benchmark containing lexical mismatches, semantic paraphrases, identifier ambiguities, numeric distractors, and multi-document conflicts.",
+  "tuning_set": [
+    {
+      "query_id": "H01",
+      "query": "What standard defines probe-based Path MTU Discovery?",
+      "query_type": "exact_identifier",
+      "expected_chunk_ids": ["22222222-0000-0000-0000-000000000001"],
+      "relevance_grades": {"22222222-0000-0000-0000-000000000001": 1.0},
+      "category": "version_identifier_ambiguity",
+      "distractor_chunk_ids": ["22222222-0000-0000-0000-000000000002", "22222222-0000-0000-0000-000000000003"]
+    },
+    {
+      "query_id": "H02",
+      "query": "BGP graceful restart and route reflection RFC specification",
+      "query_type": "exact_identifier",
+      "expected_chunk_ids": ["22222222-0000-0000-0000-000000000002"],
+      "relevance_grades": {"22222222-0000-0000-0000-000000000002": 1.0},
+      "category": "version_identifier_ambiguity",
+      "distractor_chunk_ids": ["22222222-0000-0000-0000-000000000001"]
+    },
+    {
+      "query_id": "H03",
+      "query": "What feature improved semantic caching hit rates by forty percent?",
+      "query_type": "semantic_question",
+      "expected_chunk_ids": ["22222222-0000-0000-0000-000000000005"],
+      "relevance_grades": {"22222222-0000-0000-0000-000000000005": 1.0},
+      "category": "numeric_distractor",
+      "distractor_chunk_ids": ["22222222-0000-0000-0000-000000000004", "22222222-0000-0000-0000-000000000006"]
+    },
+    {
+      "query_id": "H04",
+      "query": "Which release fixed connection pool memory leak and error_500?",
+      "query_type": "exact_identifier",
+      "expected_chunk_ids": ["22222222-0000-0000-0000-000000000004"],
+      "relevance_grades": {"22222222-0000-0000-0000-000000000004": 1.0},
+      "category": "version_identifier_ambiguity",
+      "distractor_chunk_ids": ["22222222-0000-0000-0000-000000000005", "22222222-0000-0000-0000-000000000007"]
+    },
+    {
+      "query_id": "H05",
+      "query": "How should engineers troubleshoot unhandled backend application crashes with error_500?",
+      "query_type": "exact_identifier",
+      "expected_chunk_ids": ["22222222-0000-0000-0000-000000000007"],
+      "relevance_grades": {"22222222-0000-0000-0000-000000000007": 1.0},
+      "category": "section_level_distractors",
+      "distractor_chunk_ids": ["22222222-0000-0000-0000-000000000008", "22222222-0000-0000-0000-000000000009", "22222222-0000-0000-0000-000000000010"]
+    },
+    {
+      "query_id": "H06",
+      "query": "What causes the reverse proxy to emit bad gateway error_502?",
+      "query_type": "exact_identifier",
+      "expected_chunk_ids": ["22222222-0000-0000-0000-000000000008"],
+      "relevance_grades": {"22222222-0000-0000-0000-000000000008": 1.0},
+      "category": "version_identifier_ambiguity",
+      "distractor_chunk_ids": ["22222222-0000-0000-0000-000000000007", "22222222-0000-0000-0000-000000000010"]
+    },
+    {
+      "query_id": "H07",
+      "query": "What is the daily maximum allowance for food when traveling on company business?",
+      "query_type": "semantic_question",
+      "expected_chunk_ids": ["22222222-0000-0000-0000-000000000011"],
+      "relevance_grades": {"22222222-0000-0000-0000-000000000011": 1.0},
+      "category": "lexical_mismatch",
+      "distractor_chunk_ids": ["22222222-0000-0000-0000-000000000012"]
+    },
+    {
+      "query_id": "H08",
+      "query": "Are staff members allowed to work remotely from overseas foreign locations?",
+      "query_type": "semantic_question",
+      "expected_chunk_ids": ["22222222-0000-0000-0000-000000000013"],
+      "relevance_grades": {"22222222-0000-0000-0000-000000000013": 1.0},
+      "category": "semantic_paraphrase",
+      "distractor_chunk_ids": ["22222222-0000-0000-0000-000000000014"]
+    },
+    {
+      "query_id": "H09",
+      "query": "How many weeks of fully paid leave do primary maternity caregivers receive?",
+      "query_type": "semantic_question",
+      "expected_chunk_ids": ["22222222-0000-0000-0000-000000000015"],
+      "relevance_grades": {"22222222-0000-0000-0000-000000000015": 1.0},
+      "category": "numeric_distractor",
+      "distractor_chunk_ids": ["22222222-0000-0000-0000-000000000016", "22222222-0000-0000-0000-000000000017", "22222222-0000-0000-0000-000000000018"]
+    },
+    {
+      "query_id": "H10",
+      "query": "What parental bonding leave is provided to secondary caregivers?",
+      "query_type": "semantic_question",
+      "expected_chunk_ids": ["22222222-0000-0000-0000-000000000016"],
+      "relevance_grades": {"22222222-0000-0000-0000-000000000016": 1.0},
+      "category": "numeric_distractor",
+      "distractor_chunk_ids": ["22222222-0000-0000-0000-000000000015", "22222222-0000-0000-0000-000000000018"]
+    },
+    {
+      "query_id": "H11",
+      "query": "How long must confidential proprietary data be protected under Clause_3.1?",
+      "query_type": "exact_identifier",
+      "expected_chunk_ids": ["22222222-0000-0000-0000-000000000019"],
+      "relevance_grades": {"22222222-0000-0000-0000-000000000019": 1.0},
+      "category": "version_identifier_ambiguity",
+      "distractor_chunk_ids": ["22222222-0000-0000-0000-000000000020", "22222222-0000-0000-0000-000000000021"]
+    },
+    {
+      "query_id": "H12",
+      "query": "Who owns intellectual property developed during client contracts under Clause_3.2?",
+      "query_type": "exact_identifier",
+      "expected_chunk_ids": ["22222222-0000-0000-0000-000000000020"],
+      "relevance_grades": {"22222222-0000-0000-0000-000000000020": 1.0},
+      "category": "version_identifier_ambiguity",
+      "distractor_chunk_ids": ["22222222-0000-0000-0000-000000000019", "22222222-0000-0000-0000-000000000021"]
+    },
+    {
+      "query_id": "H13",
+      "query": "What is the maximum database recovery point objective SLA?",
+      "query_type": "semantic_question",
+      "expected_chunk_ids": ["22222222-0000-0000-0000-000000000022"],
+      "relevance_grades": {"22222222-0000-0000-0000-000000000022": 1.0},
+      "category": "section_level_distractors",
+      "distractor_chunk_ids": ["22222222-0000-0000-0000-000000000023"]
+    },
+    {
+      "query_id": "H14",
+      "query": "What is the standard cipher suite specified for TLS 1.3 under RFC-8446?",
+      "query_type": "mixed",
+      "expected_chunk_ids": ["22222222-0000-0000-0000-000000000024"],
+      "relevance_grades": {"22222222-0000-0000-0000-000000000024": 1.0},
+      "category": "table_retrieval",
+      "distractor_chunk_ids": ["22222222-0000-0000-0000-000000000001"]
+    },
+    {
+      "query_id": "H15",
+      "query": "How many years must corporate tax documents and Form W-2 records be saved?",
+      "query_type": "mixed",
+      "expected_chunk_ids": ["22222222-0000-0000-0000-000000000025"],
+      "relevance_grades": {"22222222-0000-0000-0000-000000000025": 1.0},
+      "category": "multi_document_conflicts",
+      "distractor_chunk_ids": ["22222222-0000-0000-0000-000000000026"]
+    },
+    {
+      "query_id": "H16",
+      "query": "What is the retention period for job applicant interview notes?",
+      "query_type": "semantic_question",
+      "expected_chunk_ids": ["22222222-0000-0000-0000-000000000026"],
+      "relevance_grades": {"22222222-0000-0000-0000-000000000026": 1.0},
+      "category": "multi_document_conflicts",
+      "distractor_chunk_ids": ["22222222-0000-0000-0000-000000000025"]
+    }
+  ],
+  "validation_set": [
+    {
+      "query_id": "V01",
+      "query": "What RFC governs BGP routing convergence standards?",
+      "query_type": "exact_identifier",
+      "expected_chunk_ids": ["22222222-0000-0000-0000-000000000002"],
+      "relevance_grades": {"22222222-0000-0000-0000-000000000002": 1.0},
+      "category": "version_identifier_ambiguity"
+    },
+    {
+      "query_id": "V02",
+      "query": "What happens when an upstream container fails resulting in error_502?",
+      "query_type": "exact_identifier",
+      "expected_chunk_ids": ["22222222-0000-0000-0000-000000000008"],
+      "relevance_grades": {"22222222-0000-0000-0000-000000000008": 1.0},
+      "category": "version_identifier_ambiguity"
+    },
+    {
+      "query_id": "V03",
+      "query": "What is the business trip culinary stipend per day?",
+      "query_type": "semantic_question",
+      "expected_chunk_ids": ["22222222-0000-0000-0000-000000000011"],
+      "relevance_grades": {"22222222-0000-0000-0000-000000000011": 1.0},
+      "category": "lexical_mismatch"
+    },
+    {
+      "query_id": "V04",
+      "query": "International remote working maximum days limit",
+      "query_type": "keyword_search",
+      "expected_chunk_ids": ["22222222-0000-0000-0000-000000000013"],
+      "relevance_grades": {"22222222-0000-0000-0000-000000000013": 1.0},
+      "category": "semantic_paraphrase"
+    },
+    {
+      "query_id": "V05",
+      "query": "How many weeks of maternity leave do part-time employees receive?",
+      "query_type": "semantic_question",
+      "expected_chunk_ids": ["22222222-0000-0000-0000-000000000018"],
+      "relevance_grades": {"22222222-0000-0000-0000-000000000018": 1.0},
+      "category": "numeric_distractor"
+    },
+    {
+      "query_id": "V06",
+      "query": "What is the damages liability limit under contract Clause_4.1?",
+      "query_type": "exact_identifier",
+      "expected_chunk_ids": ["22222222-0000-0000-0000-000000000021"],
+      "relevance_grades": {"22222222-0000-0000-0000-000000000021": 1.0},
+      "category": "version_identifier_ambiguity"
+    },
+    {
+      "query_id": "V07",
+      "query": "Core banking tier recovery time objective SLA",
+      "query_type": "keyword_search",
+      "expected_chunk_ids": ["22222222-0000-0000-0000-000000000023"],
+      "relevance_grades": {"22222222-0000-0000-0000-000000000023": 1.0},
+      "category": "section_level_distractors"
+    },
+    {
+      "query_id": "V08",
+      "query": "How long must HR retain candidate interview notes?",
+      "query_type": "semantic_question",
+      "expected_chunk_ids": ["22222222-0000-0000-0000-000000000026"],
+      "relevance_grades": {"22222222-0000-0000-0000-000000000026": 1.0},
+      "category": "multi_document_conflicts"
+    }
+  ]
+}

@@ -1,0 +1,150 @@
+{
+  "benchmark_version": "2.0.0-hard",
+  "dataset_name": "retrieval_benchmark_phase7_hard.json",
+  "benchmark_classification": "SMALL_SYNTHETIC_ENGINEERING_BENCHMARK",
+  "total_queries_evaluated": 24,
+  "hard_negative_queries": 24,
+  "interpretation": "On this 24-query enterprise engineering benchmark with hard negatives, Phase 7 Cross-Encoder reranking improves Recall@3 (+4.2%), Recall@5 (+4.2%), MRR (+2.1%), and NDCG@5 (+2.7%) over the Phase 6 baseline. Because this dataset contains 24 queries over 26 candidate chunks, K=10 achieves Pareto latency efficiency. K=25 is retained as the configurable production default to maintain candidate diversity on larger real-world corpora.",
+  "metrics_comparison": {
+    "phase6_hybrid_baseline": {
+      "recall_at_1": 0.958,
+      "recall_at_3": 0.958,
+      "recall_at_5": 0.958,
+      "recall_at_10": 1.0,
+      "mrr": 0.958,
+      "ndcg_at_3": 0.958,
+      "ndcg_at_5": 0.958,
+      "precision_at_1": 0.958,
+      "precision_at_3": 0.319,
+      "precision_at_5": 0.192
+    },
+    "phase7_cross_encoder_pipeline": {
+      "recall_at_1": 0.958,
+      "recall_at_3": 1.0,
+      "recall_at_5": 1.0,
+      "recall_at_10": 1.0,
+      "mrr": 0.979,
+      "ndcg_at_3": 0.985,
+      "ndcg_at_5": 0.985,
+      "precision_at_1": 0.958,
+      "precision_at_3": 0.333,
+      "precision_at_5": 0.2
+    }
+  },
+  "rank_movement_analysis": {
+    "total_queries": 24,
+    "queries_top1_changed": 0,
+    "queries_promoted": 1,
+    "queries_demoted": 0,
+    "top1_rank_improved_count": 0,
+    "average_rank_movement": 0.25,
+    "failure_cases": [
+      {
+        "query_id": "Are staff members allowed to work remotely from overseas foreign locations?",
+        "query": "Are staff members allowed to work remotely from overseas foreign locations?",
+        "target_id": "22222222-0000-0000-0000-000000000013",
+        "phase6_rank": 8,
+        "phase7_rank": 2,
+        "reason": "Subtle lexical similarity between related runbook/release sections"
+      }
+    ]
+  },
+  "candidate_window_ablation": {
+    "K=10": {
+      "recall_at_1": 0.958,
+      "recall_at_3": 1.0,
+      "recall_at_5": 1.0,
+      "recall_at_10": 1.0,
+      "mrr": 0.979,
+      "ndcg_at_3": 0.985,
+      "ndcg_at_5": 0.985,
+      "precision_at_3": 0.333,
+      "precision_at_5": 0.2,
+      "avg_latency_ms": 93.13,
+      "p50_latency_ms": 71.68,
+      "p95_latency_ms": 194.04
+    },
+    "K=20": {
+      "recall_at_1": 0.958,
+      "recall_at_3": 1.0,
+      "recall_at_5": 1.0,
+      "recall_at_10": 1.0,
+      "mrr": 0.979,
+      "ndcg_at_3": 0.985,
+      "ndcg_at_5": 0.985,
+      "precision_at_3": 0.333,
+      "precision_at_5": 0.2,
+      "avg_latency_ms": 251.77,
+      "p50_latency_ms": 305.69,
+      "p95_latency_ms": 349.22
+    },
+    "K=25": {
+      "recall_at_1": 0.958,
+      "recall_at_3": 1.0,
+      "recall_at_5": 1.0,
+      "recall_at_10": 1.0,
+      "mrr": 0.979,
+      "ndcg_at_3": 0.985,
+      "ndcg_at_5": 0.985,
+      "precision_at_3": 0.333,
+      "precision_at_5": 0.2,
+      "avg_latency_ms": 304.47,
+      "p50_latency_ms": 318.06,
+      "p95_latency_ms": 378.32
+    },
+    "K=30": {
+      "recall_at_1": 0.958,
+      "recall_at_3": 1.0,
+      "recall_at_5": 1.0,
+      "recall_at_10": 1.0,
+      "mrr": 0.979,
+      "ndcg_at_3": 0.985,
+      "ndcg_at_5": 0.985,
+      "precision_at_3": 0.333,
+      "precision_at_5": 0.2,
+      "avg_latency_ms": 318.65,
+      "p50_latency_ms": 326.46,
+      "p95_latency_ms": 391.03
+    },
+    "K=50": {
+      "recall_at_1": 0.958,
+      "recall_at_3": 1.0,
+      "recall_at_5": 1.0,
+      "recall_at_10": 1.0,
+      "mrr": 0.979,
+      "ndcg_at_3": 0.985,
+      "ndcg_at_5": 0.985,
+      "precision_at_3": 0.333,
+      "precision_at_5": 0.2,
+      "avg_latency_ms": 338.2,
+      "p50_latency_ms": 353.34,
+      "p95_latency_ms": 402.01
+    }
+  },
+  "token_reduction": {
+    "total_original_tokens": 3088,
+    "total_compressed_tokens": 3043,
+    "reduction_percentage": "1.5%"
+  },
+  "latency_profile_ms": {
+    "cold_start": {
+      "model_load_ms": 1999.09,
+      "first_inference_ms": 340.26,
+      "cold_start_total_ms": 2339.36
+    },
+    "warm_inference": {
+      "average_ms": 779.73,
+      "p50_ms": 786.38,
+      "p95_ms": 921.02,
+      "p99_ms": 929.13
+    },
+    "component_breakdown": {
+      "candidate_prep_avg_ms": 0.04,
+      "tokenization_avg_ms": 2.05,
+      "onnx_inference_avg_ms": 457.39,
+      "score_processing_avg_ms": 0.09,
+      "compression_avg_ms": 0.48,
+      "evidence_selection_avg_ms": 0.38
+    }
+  }
+}

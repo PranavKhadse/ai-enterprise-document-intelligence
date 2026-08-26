@@ -1,0 +1,262 @@
+[
+  {
+    "id": "22222222-0000-0000-0000-000000000001",
+    "document_id": "aaaaaaaa-1111-1111-1111-111111111111",
+    "title": "Network Engineering Specifications",
+    "department_name": "Engineering",
+    "content": "Path MTU Discovery specification is formally defined in RFC-4821. It specifies probe-based techniques to determine the maximum transmission unit size over an IP path.",
+    "section_path": "Network > MTU Standards",
+    "page_number": 1,
+    "token_count": 30
+  },
+  {
+    "id": "22222222-0000-0000-0000-000000000002",
+    "document_id": "aaaaaaaa-1111-1111-1111-111111111111",
+    "title": "Network Engineering Specifications",
+    "department_name": "Engineering",
+    "content": "BGP route reflection and graceful restart extensions are defined in RFC-4822. This standard optimizes inter-domain routing convergence.",
+    "section_path": "Network > BGP Standards",
+    "page_number": 2,
+    "token_count": 25
+  },
+  {
+    "id": "22222222-0000-0000-0000-000000000003",
+    "document_id": "aaaaaaaa-1111-1111-1111-111111111111",
+    "title": "Network Engineering Specifications",
+    "department_name": "Engineering",
+    "content": "General MTU configuration guidelines recommend setting jumbo frames to 9000 bytes on storage area networks while keeping WAN interfaces at standard 1500 bytes.",
+    "section_path": "Network > General MTU",
+    "page_number": 3,
+    "token_count": 28
+  },
+  {
+    "id": "22222222-0000-0000-0000-000000000004",
+    "document_id": "bbbbbbbb-2222-2222-2222-222222222222",
+    "title": "Platform Release Notes",
+    "department_name": "Engineering",
+    "content": "Release v2.1.0 introduces vector search acceleration and fixes memory leak error_500 in connection pooling.",
+    "section_path": "Changelog > v2.1.0",
+    "page_number": 1,
+    "token_count": 20
+  },
+  {
+    "id": "22222222-0000-0000-0000-000000000005",
+    "document_id": "bbbbbbbb-2222-2222-2222-222222222222",
+    "title": "Platform Release Notes",
+    "department_name": "Engineering",
+    "content": "Release v2.2.0 adds multi-tenant row security and improves semantic caching hit ratios by forty percent.",
+    "section_path": "Changelog > v2.2.0",
+    "page_number": 2,
+    "token_count": 22
+  },
+  {
+    "id": "22222222-0000-0000-0000-000000000006",
+    "document_id": "bbbbbbbb-2222-2222-2222-222222222222",
+    "title": "Platform Release Notes",
+    "department_name": "Engineering",
+    "content": "Release v2.0.0 was the initial microservices refactor establishing gRPC communication across internal services.",
+    "section_path": "Changelog > v2.0.0",
+    "page_number": 3,
+    "token_count": 18
+  },
+  {
+    "id": "22222222-0000-0000-0000-000000000007",
+    "document_id": "cccccccc-3333-3333-3333-333333333333",
+    "title": "Site Reliability Engineering Runbook",
+    "department_name": "IT Infrastructure",
+    "content": "When backend services experience unhandled exceptions, the application gateway returns error_500. Inspect stack trace logs and check Postgres connection limits.",
+    "section_path": "Errors > Internal Crash 500",
+    "page_number": 1,
+    "token_count": 26
+  },
+  {
+    "id": "22222222-0000-0000-0000-000000000008",
+    "document_id": "cccccccc-3333-3333-3333-333333333333",
+    "title": "Site Reliability Engineering Runbook",
+    "department_name": "IT Infrastructure",
+    "content": "HTTP error_502 indicates a bad gateway where the upstream reverse proxy received an invalid response from the application container.",
+    "section_path": "Errors > Bad Gateway 502",
+    "page_number": 2,
+    "token_count": 24
+  },
+  {
+    "id": "22222222-0000-0000-0000-000000000009",
+    "document_id": "cccccccc-3333-3333-3333-333333333333",
+    "title": "Site Reliability Engineering Runbook",
+    "department_name": "IT Infrastructure",
+    "content": "HTTP error_503 signals service unavailability during automated deployments or when rate limiting throttles excessive client requests.",
+    "section_path": "Errors > Service Unavailable 503",
+    "page_number": 3,
+    "token_count": 22
+  },
+  {
+    "id": "22222222-0000-0000-0000-000000000010",
+    "document_id": "cccccccc-3333-3333-3333-333333333333",
+    "title": "Site Reliability Engineering Runbook",
+    "department_name": "IT Infrastructure",
+    "content": "HTTP error_504 denotes a gateway timeout when upstream microservices fail to respond within the thirty second ingress timeout window.",
+    "section_path": "Errors > Gateway Timeout 504",
+    "page_number": 4,
+    "token_count": 25
+  },
+  {
+    "id": "22222222-0000-0000-0000-000000000011",
+    "document_id": "dddddddd-4444-4444-4444-444444444444",
+    "title": "Corporate Travel & Expense Handbook",
+    "department_name": "Finance",
+    "content": "Subsistence stipend and culinary expenditure reimbursement for employee business trips are capped at seventy-five dollars daily.",
+    "section_path": "Expenses > Per Diem Meals",
+    "page_number": 1,
+    "token_count": 22
+  },
+  {
+    "id": "22222222-0000-0000-0000-000000000012",
+    "document_id": "dddddddd-4444-4444-4444-444444444444",
+    "title": "Corporate Travel & Expense Handbook",
+    "department_name": "Finance",
+    "content": "Travel meal expense guidelines must follow standard corporate policy. All airfare bookings must be finalized via corporate portal.",
+    "section_path": "Expenses > General Travel",
+    "page_number": 2,
+    "token_count": 23
+  },
+  {
+    "id": "22222222-0000-0000-0000-000000000013",
+    "document_id": "eeeeeeee-5555-5555-5555-555555555555",
+    "title": "Global Workforce Telecommuting Policy",
+    "department_name": "Human Resources",
+    "content": "Cross-border telecommuting is restricted to a maximum of thirty consecutive calendar days per fiscal year upon executive approval.",
+    "section_path": "Remote Work > International",
+    "page_number": 1,
+    "token_count": 22
+  },
+  {
+    "id": "22222222-0000-0000-0000-000000000014",
+    "document_id": "eeeeeeee-5555-5555-5555-555555555555",
+    "title": "Global Workforce Telecommuting Policy",
+    "department_name": "Human Resources",
+    "content": "Remote work guidelines and engineer equipment allowances are distributed by IT. Domestic telecommuting requires manager sign-off.",
+    "section_path": "Remote Work > Domestic",
+    "page_number": 2,
+    "token_count": 21
+  },
+  {
+    "id": "22222222-0000-0000-0000-000000000015",
+    "document_id": "ffffffff-6666-6666-6666-666666666666",
+    "title": "HR Comprehensive Parental Leave Policy",
+    "department_name": "Human Resources",
+    "content": "Eligible primary caregivers receive 26 weeks of fully paid maternity leave upon birth or legal adoption of a child.",
+    "section_path": "Leave > Primary Maternity",
+    "page_number": 1,
+    "token_count": 24
+  },
+  {
+    "id": "22222222-0000-0000-0000-000000000016",
+    "document_id": "ffffffff-6666-6666-6666-666666666666",
+    "title": "HR Comprehensive Parental Leave Policy",
+    "department_name": "Human Resources",
+    "content": "Secondary caregivers and partners receive 6 weeks of paid parental leave to facilitate family bonding.",
+    "section_path": "Leave > Secondary Caregiver",
+    "page_number": 2,
+    "token_count": 18
+  },
+  {
+    "id": "22222222-0000-0000-0000-000000000017",
+    "document_id": "ffffffff-6666-6666-6666-666666666666",
+    "title": "HR Comprehensive Parental Leave Policy",
+    "department_name": "Human Resources",
+    "content": "Contractor temporary leave is limited to 12 weeks of unpaid parental allowance with job protection.",
+    "section_path": "Leave > Contractors",
+    "page_number": 3,
+    "token_count": 18
+  },
+  {
+    "id": "22222222-0000-0000-0000-000000000018",
+    "document_id": "ffffffff-6666-6666-6666-666666666666",
+    "title": "HR Comprehensive Parental Leave Policy",
+    "department_name": "Human Resources",
+    "content": "Part-time employee benefits are prorated at 13 weeks of paid maternity leave if working twenty or more hours per week.",
+    "section_path": "Leave > Part Time",
+    "page_number": 4,
+    "token_count": 24
+  },
+  {
+    "id": "22222222-0000-0000-0000-000000000019",
+    "document_id": "11111111-7777-7777-7777-777777777777",
+    "title": "Enterprise Legal & Nondisclosure Agreements",
+    "department_name": "Legal",
+    "content": "Under Clause_3.1, confidential information must be protected with reasonable care and cannot be disclosed for five years following contract termination.",
+    "section_path": "NDA > Confidentiality Clause_3.1",
+    "page_number": 1,
+    "token_count": 27
+  },
+  {
+    "id": "22222222-0000-0000-0000-000000000020",
+    "document_id": "11111111-7777-7777-7777-777777777777",
+    "title": "Enterprise Legal & Nondisclosure Agreements",
+    "department_name": "Legal",
+    "content": "Under Clause_3.2, all intellectual property developed during the engagement remains the sole and exclusive property of the company.",
+    "section_path": "NDA > Intellectual Property Clause_3.2",
+    "page_number": 2,
+    "token_count": 24
+  },
+  {
+    "id": "22222222-0000-0000-0000-000000000021",
+    "document_id": "11111111-7777-7777-7777-777777777777",
+    "title": "Enterprise Legal & Nondisclosure Agreements",
+    "department_name": "Legal",
+    "content": "Under Clause_4.1, total liability for direct damages under this agreement is capped at the total fees paid in the prior twelve months.",
+    "section_path": "NDA > Limitation of Liability Clause_4.1",
+    "page_number": 3,
+    "token_count": 26
+  },
+  {
+    "id": "22222222-0000-0000-0000-000000000022",
+    "document_id": "22222222-8888-8888-8888-888888888888",
+    "title": "Disaster Recovery and High Availability Standard",
+    "department_name": "IT Infrastructure",
+    "content": "Disaster recovery SLAs guarantee a recovery point objective (RPO) of under five minutes using asynchronous database replication.",
+    "section_path": "DR > Recovery Point Objective",
+    "page_number": 1,
+    "token_count": 22
+  },
+  {
+    "id": "22222222-0000-0000-0000-000000000023",
+    "document_id": "22222222-8888-8888-8888-888888888888",
+    "title": "Disaster Recovery and High Availability Standard",
+    "department_name": "IT Infrastructure",
+    "content": "Disaster recovery SLAs specify a recovery time objective (RTO) of under one hour for mission-critical core banking tiers.",
+    "section_path": "DR > Recovery Time Objective",
+    "page_number": 2,
+    "token_count": 23
+  },
+  {
+    "id": "22222222-0000-0000-0000-000000000024",
+    "document_id": "33333333-9999-9999-9999-999999999999",
+    "title": "Security Protocol Matrix",
+    "department_name": "Security & Compliance",
+    "content": "| Protocol | Standard | Port | Default Cipher |\n|---|---|---|---|\n| TLS 1.3 | RFC-8446 | 443 | TLS_AES_256_GCM_SHA384 |\n| TLS 1.2 | RFC-5246 | 443 | ECDHE_RSA_AES_128_GCM |\n| SSH-2 | RFC-4253 | 22 | chacha20-poly1305 |",
+    "section_path": "Security > Ciphers Table",
+    "page_number": 1,
+    "token_count": 48
+  },
+  {
+    "id": "22222222-0000-0000-0000-000000000025",
+    "document_id": "44444444-0000-0000-0000-000000000000",
+    "title": "Data Governance Retention Schedules",
+    "department_name": "Finance",
+    "content": "Tax filing records, IRS Form W-2 copies, and corporate accounting ledgers must be retained for exactly seven years.",
+    "section_path": "Governance > Tax Retention",
+    "page_number": 1,
+    "token_count": 24
+  },
+  {
+    "id": "22222222-0000-0000-0000-000000000026",
+    "document_id": "44444444-0000-0000-0000-000000000000",
+    "title": "Data Governance Retention Schedules",
+    "department_name": "Human Resources",
+    "content": "Employee performance evaluations and recruitment interview notes must be retained for three years post employment termination.",
+    "section_path": "Governance > HR Retention",
+    "page_number": 2,
+    "token_count": 21
+  }
+]

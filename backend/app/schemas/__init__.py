@@ -25,6 +25,31 @@ from backend.app.schemas.bm25 import (
     BM25SearchResult,
     DualIndexingResult,
 )
+from backend.app.schemas.retrieval import (
+    QueryType,
+    FusionStrategy,
+    RetrievalFilter,
+    ScoredChunk,
+    RetrievalDiagnostics,
+    HybridRetrievalResponse,
+    EvalSample,
+    EvaluationReport,
+)
+from backend.app.schemas.optimizer import (
+    GridConfig,
+    ConfigurationResult,
+    QueryTypeBreakdown,
+    LatencyStats,
+    OptimizationReport,
+)
+from backend.app.schemas.reranking import (
+    RerankerConfig,
+    CompressionConfig,
+    RerankedChunk,
+    RerankingDiagnostics,
+    RAGContextItem,
+    RerankedRetrievalResponse,
+)
 
 __all__ = [
     "HealthResponse",
@@ -43,4 +68,23 @@ __all__ = [
     "BM25Config",
     "BM25SearchResult",
     "DualIndexingResult",
+    "QueryType",
+    "FusionStrategy",
+    "RetrievalFilter",
+    "ScoredChunk",
+    "RetrievalDiagnostics",
+    "HybridRetrievalResponse",
+    "EvalSample",
+    "EvaluationReport",
+    "GridConfig",
+    "ConfigurationResult",
+    "QueryTypeBreakdown",
+    "LatencyStats",
+    "OptimizationReport",
+    "RerankerConfig",
+    "CompressionConfig",
+    "RerankedChunk",
+    "RerankingDiagnostics",
+    "RAGContextItem",
+    "RerankedRetrievalResponse",
 ]
