@@ -1,5 +1,5 @@
 from fastapi import APIRouter
-from backend.app.api.v1.endpoints import auth, comparison, documents, health, rag
+from backend.app.api.v1.endpoints import audit, auth, comparison, documents, health, rag
 
 api_router = APIRouter()
 
@@ -17,3 +17,6 @@ api_router.include_router(comparison.router, prefix="/documents", tags=["Documen
 
 # Include Grounded RAG synthesis endpoints under /api/v1/rag
 api_router.include_router(rag.router, prefix="/rag", tags=["RAG Synthesis & Verification"])
+
+# Include Phase 11 Administrative Audit Logging & Security Observability under /api/v1/audit
+api_router.include_router(audit.router, prefix="/audit", tags=["Audit & Security Observability"])

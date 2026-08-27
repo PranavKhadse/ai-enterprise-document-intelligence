@@ -3,6 +3,7 @@ from fastapi import FastAPI, status
 from fastapi.middleware.cors import CORSMiddleware
 from backend.app.api.v1.api import api_router
 from backend.app.core.config import settings
+from backend.app.core.request_context import RequestContextMiddleware
 from backend.app.schemas.health import HealthResponse
 
 
@@ -26,6 +27,9 @@ app = FastAPI(
     redoc_url="/redoc",
     lifespan=lifespan,
 )
+
+# Configure Request Correlation Middleware (X-Request-ID)
+app.add_middleware(RequestContextMiddleware)
 
 # Configure CORS Middleware
 if settings.BACKEND_CORS_ORIGINS:

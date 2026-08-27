@@ -148,6 +148,17 @@ from backend.app.services.auth_service import (
     AuthService,
     auth_service,
 )
+from backend.app.services.audit_service import (
+    AuditService,
+    audit_service,
+    sanitize_metadata,
+    generate_query_fingerprint,
+    compute_canonical_event_hash,
+)
+from backend.app.services.security_observability import (
+    SecurityObservabilityService,
+    security_observability,
+)
 
 __all__ = [
     "LocalFileStorage",
@@ -237,4 +248,11 @@ __all__ = [
     "document_comparator",
     "AuthService",
     "auth_service",
+    "AuditService",
+    "audit_service",
+    "sanitize_metadata",
+    "generate_query_fingerprint",
+    "compute_canonical_event_hash",
+    "SecurityObservabilityService",
+    "security_observability",
 ]

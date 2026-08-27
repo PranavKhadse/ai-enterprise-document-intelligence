@@ -1,0 +1,87 @@
+{
+  "benchmark_name": "Phase 11 Audit Logging, Security Observability & Compliance Benchmark",
+  "evaluated_at": "2026-08-27T15:01:22.213570+00:00",
+  "total_scenarios": 10,
+  "metrics": {
+    "pass_rate": 100.0,
+    "passed_scenarios": 10,
+    "total_scenarios": 10,
+    "average_latency_ms": 10.54,
+    "secret_redaction_accuracy": 100.0,
+    "request_correlation_accuracy": 100.0,
+    "anomaly_detection_accuracy": 100.0,
+    "tamper_detection_accuracy": 100.0
+  },
+  "scenarios": [
+    {
+      "name": "Missing Authorization Header",
+      "category": "Authentication Guard",
+      "passed": true,
+      "latency_ms": 5.17,
+      "details": "Unauthenticated access rejected with HTTP 401"
+    },
+    {
+      "name": "Non-admin Audit API Access",
+      "category": "RBAC Isolation",
+      "passed": true,
+      "latency_ms": 20.69,
+      "details": "Non-admin employee denied access with HTTP 403"
+    },
+    {
+      "name": "Recursive Secret Redaction",
+      "category": "Data Privacy",
+      "passed": true,
+      "latency_ms": 0.04,
+      "details": "All nested passwords, API keys, and secrets recursively sanitized to [REDACTED]"
+    },
+    {
+      "name": "JWT/Bearer Token Redaction",
+      "category": "Data Privacy",
+      "passed": true,
+      "latency_ms": 0.02,
+      "details": "Embedded JWT and Bearer tokens scrubbed from string payloads"
+    },
+    {
+      "name": "Query Fingerprint Privacy",
+      "category": "Query Privacy",
+      "passed": true,
+      "latency_ms": 0.02,
+      "details": "Search and RAG queries fingerprinted via one-way SHA-256 without raw text exposure"
+    },
+    {
+      "name": "Invalid Request ID Replacement",
+      "category": "Request Correlation",
+      "passed": true,
+      "latency_ms": 2.95,
+      "details": "Unsafe or malicious request IDs discarded and replaced with secure random IDs"
+    },
+    {
+      "name": "Concurrent Request ID Isolation",
+      "category": "Request Correlation",
+      "passed": true,
+      "latency_ms": 14.64,
+      "details": "ContextVar request correlation IDs strictly isolated across concurrent async tasks"
+    },
+    {
+      "name": "Login Failure Burst Detection",
+      "category": "Security Observability",
+      "passed": true,
+      "latency_ms": 29.61,
+      "details": "5 repeated authentication failures detected within window triggering HIGH security anomaly"
+    },
+    {
+      "name": "Authorization Denial Burst Detection",
+      "category": "Security Observability",
+      "passed": true,
+      "latency_ms": 27.19,
+      "details": "5 repeated authorization denials for a user detected triggering HIGH security anomaly"
+    },
+    {
+      "name": "Audit Record Tamper Detection",
+      "category": "Audit Integrity",
+      "passed": true,
+      "latency_ms": 5.04,
+      "details": "Tamper-evident canonical SHA-256 hash chaining detects unauthorized row modification"
+    }
+  ]
+}

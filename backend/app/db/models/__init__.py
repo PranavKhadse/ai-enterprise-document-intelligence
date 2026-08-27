@@ -12,6 +12,7 @@ from backend.app.db.models.document_version import DocumentVersion
 from backend.app.db.models.document_chunk import DocumentChunk
 from backend.app.db.models.query_log import QueryLog
 from backend.app.db.models.evaluation import EvaluationResult
+from backend.app.db.models.audit_event import AuditEvent
 
 __all__ = [
     "Base",
@@ -24,4 +25,5 @@ __all__ = [
     "DocumentChunk",
     "QueryLog",
     "EvaluationResult",
+    "AuditEvent",
 ]

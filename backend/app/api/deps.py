@@ -5,7 +5,7 @@ user validation, role checking, clearance guards, and token invalidation enforce
 """
 from typing import Callable, List, Optional
 import uuid
-from fastapi import Depends, HTTPException, status
+from fastapi import Depends, HTTPException, Request, status
 from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -19,8 +19,11 @@ from backend.app.core.security import (
 )
 from backend.app.db.models.user import User
 from backend.app.db.session import get_db
+from backend.app.schemas.audit import AuditEventType, AuditSeverity, AuthorizationResult
 from backend.app.schemas.auth import RBACContext
+from backend.app.services.audit_service import audit_service
 from backend.app.services.auth_service import auth_service
+from backend.app.services.security_observability import security_observability
 
 # OAuth2 scheme for extracting Bearer token from Authorization header
 oauth2_scheme = OAuth2PasswordBearer(
@@ -30,6 +33,7 @@ oauth2_scheme = OAuth2PasswordBearer(
 
 
 async def get_current_user(
+    request: Request,
     token: Optional[str] = Depends(oauth2_scheme),
     db: AsyncSession = Depends(get_db),
 ) -> User:
@@ -37,6 +41,10 @@ async def get_current_user(
     Extracts Bearer token, validates cryptographic signature & expiration,
     and resolves the authoritative current user from the database.
     """
+    client_ip = request.client.host if request.client else None
+    user_agent = request.headers.get("user-agent")
+    req_path = request.url.path
+
     if not token:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
@@ -89,6 +97,20 @@ async def get_current_user(
         )
 
     if not user.is_active:
+        await audit_service.record_event(
+            event_type=AuditEventType.AUTH_ACCOUNT_DISABLED,
+            action="access_attempt_deactivated_account",
+            severity=AuditSeverity.HIGH,
+            principal=user,
+            resource_type="user",
+            resource_id=str(user.id),
+            authorization_result=AuthorizationResult.DENIED,
+            source_ip=client_ip,
+            user_agent=user_agent,
+            api_path=req_path,
+            status_code=401,
+            db=db,
+        )
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="User account is deactivated.",
@@ -98,6 +120,20 @@ async def get_current_user(
     # Token version invalidation check
     token_ver = payload.get("token_version", 1)
     if token_ver != getattr(user, "token_version", 1):
+        await audit_service.record_event(
+            event_type=AuditEventType.AUTH_TOKEN_REVOKED,
+            action="access_attempt_revoked_token",
+            severity=AuditSeverity.HIGH,
+            principal=user,
+            resource_type="token",
+            resource_id=str(user.id),
+            authorization_result=AuthorizationResult.DENIED,
+            source_ip=client_ip,
+            user_agent=user_agent,
+            api_path=req_path,
+            status_code=401,
+            db=db,
+        )
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Authentication token has been revoked.",
@@ -127,12 +163,40 @@ def require_roles(required_roles: List[str]) -> Callable:
     Admins bypass role restrictions.
     """
     async def role_checker(
+        request: Request,
         rbac: RBACContext = Depends(get_current_rbac_context),
+        db: AsyncSession = Depends(get_db),
     ) -> RBACContext:
         if rbac.is_admin:
             return rbac
         if any(role in rbac.roles for role in required_roles):
             return rbac
+
+        client_ip = request.client.host if request.client else None
+        user_agent = request.headers.get("user-agent")
+        req_path = request.url.path
+
+        # Record authorization denial audit event
+        await audit_service.record_authorization_denied(
+            principal=rbac,
+            action="role_access_denied",
+            resource_type="endpoint",
+            resource_id=req_path,
+            reason=f"Requires one of roles: {required_roles}",
+            api_path=req_path,
+            http_method=request.method,
+            status_code=403,
+            source_ip=client_ip,
+            user_agent=user_agent,
+            db=db,
+        )
+        # Evaluate anomaly threshold for repeated authorization denials
+        await security_observability.evaluate_authorization_denial_anomaly(
+            user_id=rbac.user_id,
+            email=rbac.email,
+            db=db,
+        )
+
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail=f"Access denied. Requires one of roles: {required_roles}.",
@@ -145,10 +209,37 @@ def require_clearance(min_level: int) -> Callable:
     Dependency factory enforcing minimum security clearance level (L1-L4).
     """
     async def clearance_checker(
+        request: Request,
         rbac: RBACContext = Depends(get_current_rbac_context),
+        db: AsyncSession = Depends(get_db),
     ) -> RBACContext:
         if rbac.is_admin or rbac.clearance_level >= min_level:
             return rbac
+
+        client_ip = request.client.host if request.client else None
+        user_agent = request.headers.get("user-agent")
+        req_path = request.url.path
+
+        # Record clearance denial audit event
+        await audit_service.record_authorization_denied(
+            principal=rbac,
+            action="clearance_access_denied",
+            resource_type="endpoint",
+            resource_id=req_path,
+            reason=f"Insufficient security clearance (requires L{min_level}, current L{rbac.clearance_level})",
+            api_path=req_path,
+            http_method=request.method,
+            status_code=403,
+            source_ip=client_ip,
+            user_agent=user_agent,
+            db=db,
+        )
+        await security_observability.evaluate_authorization_denial_anomaly(
+            user_id=rbac.user_id,
+            email=rbac.email,
+            db=db,
+        )
+
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail=f"Access denied. Insufficient security clearance (requires L{min_level}, current L{rbac.clearance_level}).",
@@ -157,3 +248,4 @@ def require_clearance(min_level: int) -> Callable:
 
 
 require_admin = require_roles(["Admin"])
+

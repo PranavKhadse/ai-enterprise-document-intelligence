@@ -117,6 +117,19 @@ async def upload_document(
             detail=f"Database transaction failed: {str(db_err)}",
         )
 
+    # Record document creation audit event
+    from backend.app.schemas.audit import AuditEventType
+    from backend.app.services.audit_service import audit_service
+    await audit_service.record_document_event(
+        event_type=AuditEventType.DOCUMENT_CREATED,
+        action="upload_pdf_document",
+        document_id=str(new_doc.id),
+        title=new_doc.title,
+        file_hash=new_doc.file_hash,
+        department_id=str(new_doc.department_id) if new_doc.department_id else None,
+        db=db,
+    )
+
     return DocumentUploadResponse(
         id=new_doc.id,
         title=new_doc.title,

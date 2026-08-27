@@ -30,6 +30,19 @@ async def compare_documents(
     """
     try:
         response = await document_comparator.compare_documents(request, db=db)
+        # Record Phase 11 document comparison audit event
+        from backend.app.services.audit_service import audit_service
+        doc_a_str = str(request.document_a_id) if request.document_a_id else "raw_text_a"
+        doc_b_str = str(request.document_b_id) if request.document_b_id else "raw_text_b"
+        await audit_service.record_comparison_event(
+            doc_a_id=doc_a_str,
+            doc_b_id=doc_b_str,
+            principal=None,
+            divergence_index=response.statistics.divergence_index if response.statistics else 0.0,
+            conflicts_count=response.statistics.conflicting_clauses_count if response.statistics else 0,
+            latency_ms=response.diagnostics.total_latency_ms if response.diagnostics else 0.0,
+            db=db,
+        )
         return response
     except ValueError as ve:
         raise HTTPException(

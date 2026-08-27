@@ -119,6 +119,17 @@ class Settings(BaseSettings):
     JWT_TOKEN_VERSION_CLAIM: str = "token_version"
     SECURITY_PASSWORD_ITERATIONS: int = 100000
 
+    # Phase 11 Audit Logging, Security Observability & Compliance Settings
+    AUDIT_ENABLED: bool = True
+    AUDIT_STORE_QUERY_TEXT: bool = False
+    AUDIT_SECURITY_FAILURE_THRESHOLD: int = 5
+    AUDIT_SECURITY_WINDOW_MINUTES: int = 10
+    AUDIT_MAX_QUERY_LIMIT: int = 100
+    AUDIT_RETENTION_DAYS: int = 365
+    AUDIT_MAX_METADATA_SIZE: int = 16384
+    AUDIT_MAX_QUERY_TEXT_LENGTH: int = 2000
+    AUDIT_HASH_CHAIN_ENABLED: bool = True
+
     # Database Settings
     POSTGRES_SERVER: str = "localhost"
     POSTGRES_PORT: int = 5432

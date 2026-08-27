@@ -69,4 +69,17 @@ async def query_rag(
         logger.warning("Failed to record QueryLog telemetry: %s", log_err)
         await db.rollback()
 
+    # Record Phase 11 privacy-preserving RAG query audit event
+    from backend.app.services.audit_service import audit_service
+    await audit_service.record_rag_event(
+        query=request.query,
+        principal=None,
+        citations_count=len(answer.citations),
+        grounding_status=answer.grounding_status.value if hasattr(answer.grounding_status, "value") else str(answer.grounding_status),
+        latency_ms=answer.diagnostics.total_rag_latency_ms if answer.diagnostics else 0.0,
+        degraded_mode=answer.diagnostics.degraded_mode if answer.diagnostics else False,
+        conflicts_detected=answer.conflicts_detected,
+        db=db,
+    )
+
     return answer

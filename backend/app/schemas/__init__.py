@@ -81,6 +81,16 @@ from backend.app.schemas.auth import (
     TokenResponse,
     RBACContext,
 )
+from backend.app.schemas.audit import (
+    AuditEventType,
+    AuditSeverity,
+    AuthorizationResult,
+    AuditEventCreate,
+    AuditEventResponse,
+    AuditEventListResponse,
+    AuditQueryFilter,
+    AuditStatisticsResponse,
+)
 
 __all__ = [
     "HealthResponse",
@@ -143,4 +153,12 @@ __all__ = [
     "UserResponse",
     "TokenResponse",
     "RBACContext",
+    "AuditEventType",
+    "AuditSeverity",
+    "AuthorizationResult",
+    "AuditEventCreate",
+    "AuditEventResponse",
+    "AuditEventListResponse",
+    "AuditQueryFilter",
+    "AuditStatisticsResponse",
 ]
