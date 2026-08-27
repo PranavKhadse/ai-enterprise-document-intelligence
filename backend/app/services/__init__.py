@@ -1,7 +1,9 @@
 """
 Services package exposing storage, parser, chunker, embedding, vector store, BM25,
 dual indexing, query analysis, fusion, hybrid retrieval, evaluation, optimizer,
-cross-encoder reranking, context compression, evidence selection, and reranking pipeline.
+cross-encoder reranking, context compression, evidence selection, reranking pipeline,
+LLM providers, prompt builder, citation verifier, grounding verifier, RAG synthesis, RAG pipeline,
+clause extractor, clause aligner, entity diff engine, and document comparator.
 """
 from backend.app.services.storage import (
     LocalFileStorage,
@@ -92,6 +94,56 @@ from backend.app.services.reranking_pipeline import (
     RerankingPipelineService,
     reranking_pipeline,
 )
+from backend.app.services.llm_provider import (
+    BaseLLMProvider,
+    MockLLMProvider,
+    OpenAICompatibleLLMProvider,
+    LLMProviderError,
+    LLMTimeoutError,
+    LLMUnavailableError,
+    LLMMalformedOutputError,
+    get_llm_provider,
+    llm_provider,
+)
+from backend.app.services.prompt_builder import (
+    RAGPromptBuilder,
+    prompt_builder,
+)
+from backend.app.services.citation_verifier import (
+    CitationVerifierService,
+    citation_verifier,
+)
+from backend.app.services.grounding_verifier import (
+    GroundingVerifierService,
+    grounding_verifier,
+)
+from backend.app.services.rag_synthesis import (
+    RAGSynthesisService,
+    rag_synthesis_service,
+)
+from backend.app.services.rag_pipeline import (
+    RAGPipelineService,
+    rag_pipeline_service,
+)
+from backend.app.services.clause_extractor import (
+    ClauseExtractorService,
+    ExtractedClause,
+    clause_extractor,
+)
+from backend.app.services.clause_aligner import (
+    ClauseAlignerService,
+    AlignmentCandidate,
+    clause_aligner,
+)
+from backend.app.services.entity_diff import (
+    EntityDiffEngine,
+    entity_diff_engine,
+)
+from backend.app.services.document_comparator import (
+    DocumentComparatorService,
+    LLMDiffProposal,
+    document_comparator,
+)
 
 __all__ = [
     "LocalFileStorage",
@@ -149,4 +201,34 @@ __all__ = [
     "evidence_selector",
     "RerankingPipelineService",
     "reranking_pipeline",
+    "BaseLLMProvider",
+    "MockLLMProvider",
+    "OpenAICompatibleLLMProvider",
+    "LLMProviderError",
+    "LLMTimeoutError",
+    "LLMUnavailableError",
+    "LLMMalformedOutputError",
+    "get_llm_provider",
+    "llm_provider",
+    "RAGPromptBuilder",
+    "prompt_builder",
+    "CitationVerifierService",
+    "citation_verifier",
+    "GroundingVerifierService",
+    "grounding_verifier",
+    "RAGSynthesisService",
+    "rag_synthesis_service",
+    "RAGPipelineService",
+    "rag_pipeline_service",
+    "ClauseExtractorService",
+    "ExtractedClause",
+    "clause_extractor",
+    "ClauseAlignerService",
+    "AlignmentCandidate",
+    "clause_aligner",
+    "EntityDiffEngine",
+    "entity_diff_engine",
+    "DocumentComparatorService",
+    "LLMDiffProposal",
+    "document_comparator",
 ]

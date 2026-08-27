@@ -1,0 +1,141 @@
+{
+  "benchmark_name": "Phase 9 Enterprise Document Comparison & Conflict Benchmark",
+  "scenario_count": 8,
+  "metrics": {
+    "alignment_precision": 100.0,
+    "alignment_recall": 100.0,
+    "conflict_detection_rate": 100.0,
+    "entity_diff_accuracy": 100.0,
+    "average_latency_ms": 0.79
+  },
+  "per_scenario_results": [
+    {
+      "category": "Exact Duplicate Documents",
+      "passed": true,
+      "latency_ms": 0.77,
+      "statistics": {
+        "total_clauses_a": 2,
+        "total_clauses_b": 2,
+        "added_clauses_count": 0,
+        "removed_clauses_count": 0,
+        "modified_clauses_count": 0,
+        "conflicting_clauses_count": 0,
+        "unchanged_clauses_count": 2,
+        "divergence_index": 0.0
+      },
+      "notes": []
+    },
+    {
+      "category": "Renumbered Sections",
+      "passed": true,
+      "latency_ms": 0.77,
+      "statistics": {
+        "total_clauses_a": 2,
+        "total_clauses_b": 3,
+        "added_clauses_count": 1,
+        "removed_clauses_count": 0,
+        "modified_clauses_count": 0,
+        "conflicting_clauses_count": 0,
+        "unchanged_clauses_count": 2,
+        "divergence_index": 0.25
+      },
+      "notes": []
+    },
+    {
+      "category": "Added & Removed Clauses",
+      "passed": true,
+      "latency_ms": 0.52,
+      "statistics": {
+        "total_clauses_a": 2,
+        "total_clauses_b": 2,
+        "added_clauses_count": 1,
+        "removed_clauses_count": 1,
+        "modified_clauses_count": 0,
+        "conflicting_clauses_count": 0,
+        "unchanged_clauses_count": 1,
+        "divergence_index": 0.75
+      },
+      "notes": []
+    },
+    {
+      "category": "Policy Duration Conflict",
+      "passed": true,
+      "latency_ms": 0.6,
+      "statistics": {
+        "total_clauses_a": 1,
+        "total_clauses_b": 1,
+        "added_clauses_count": 0,
+        "removed_clauses_count": 0,
+        "modified_clauses_count": 0,
+        "conflicting_clauses_count": 1,
+        "unchanged_clauses_count": 0,
+        "divergence_index": 1.0
+      },
+      "notes": []
+    },
+    {
+      "category": "Policy Polarity Reversal",
+      "passed": true,
+      "latency_ms": 0.53,
+      "statistics": {
+        "total_clauses_a": 1,
+        "total_clauses_b": 1,
+        "added_clauses_count": 0,
+        "removed_clauses_count": 0,
+        "modified_clauses_count": 0,
+        "conflicting_clauses_count": 1,
+        "unchanged_clauses_count": 0,
+        "divergence_index": 1.0
+      },
+      "notes": []
+    },
+    {
+      "category": "Currency/Budget Variance",
+      "passed": true,
+      "latency_ms": 0.57,
+      "statistics": {
+        "total_clauses_a": 1,
+        "total_clauses_b": 1,
+        "added_clauses_count": 0,
+        "removed_clauses_count": 0,
+        "modified_clauses_count": 1,
+        "conflicting_clauses_count": 0,
+        "unchanged_clauses_count": 0,
+        "divergence_index": 0.5
+      },
+      "notes": []
+    },
+    {
+      "category": "Table Clause Modification",
+      "passed": true,
+      "latency_ms": 0.59,
+      "statistics": {
+        "total_clauses_a": 1,
+        "total_clauses_b": 1,
+        "added_clauses_count": 0,
+        "removed_clauses_count": 0,
+        "modified_clauses_count": 1,
+        "conflicting_clauses_count": 0,
+        "unchanged_clauses_count": 0,
+        "divergence_index": 0.5
+      },
+      "notes": []
+    },
+    {
+      "category": "Multi-Section Complex Policy Revision",
+      "passed": true,
+      "latency_ms": 1.93,
+      "statistics": {
+        "total_clauses_a": 4,
+        "total_clauses_b": 4,
+        "added_clauses_count": 1,
+        "removed_clauses_count": 1,
+        "modified_clauses_count": 2,
+        "conflicting_clauses_count": 0,
+        "unchanged_clauses_count": 1,
+        "divergence_index": 0.625
+      },
+      "notes": []
+    }
+  ]
+}

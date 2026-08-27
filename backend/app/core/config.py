@@ -98,6 +98,18 @@ class Settings(BaseSettings):
     DIVERSITY_NEAR_DUPLICATE_THRESHOLD: float = 0.85
     DIVERSITY_MAX_CHUNKS_PER_SECTION: int = 2
 
+    # Phase 8 LLM Provider & RAG Synthesis Settings
+    LLM_PROVIDER: str = "mock"
+    LLM_MODEL_NAME: str = "gpt-4o-mini"
+    LLM_API_KEY: Optional[str] = None
+    LLM_BASE_URL: Optional[str] = None
+    LLM_TEMPERATURE: float = 0.0
+    LLM_MAX_TOKENS: int = 1024
+    LLM_TIMEOUT_SECONDS: float = 10.0
+    RAG_ENABLE_VERIFICATION: bool = True
+    RAG_LEXICAL_SUPPORT_THRESHOLD: float = 0.35
+    RAG_CONFLICT_DETECTION_ENABLED: bool = True
+
     # Database Settings
     POSTGRES_SERVER: str = "localhost"
     POSTGRES_PORT: int = 5432

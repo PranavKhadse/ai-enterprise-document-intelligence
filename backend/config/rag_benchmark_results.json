@@ -1,0 +1,114 @@
+{
+  "benchmark_name": "Phase 8 RAG Synthesis & Verification Benchmark",
+  "total_scenarios_evaluated": 10,
+  "metrics": {
+    "grounding_accuracy_rate": 1.0,
+    "refusal_correctness_rate": 1.0,
+    "conflict_detection_accuracy_rate": 1.0,
+    "fabricated_citation_rejection_count": 1,
+    "total_verified_citations_emitted": 11,
+    "avg_latency_ms": 0.46
+  },
+  "scenarios": {
+    "direct_factual": {
+      "query": "What is the mandatory authentication method?",
+      "grounding_status": "fully_grounded",
+      "insufficient_evidence": false,
+      "conflicts_detected": false,
+      "citations_emitted": 1,
+      "claims_count": 1,
+      "latency_ms": 0.69,
+      "warnings_count": 0
+    },
+    "multi_document": {
+      "query": "Summarize authentication and backup policies.",
+      "grounding_status": "fully_grounded",
+      "insufficient_evidence": false,
+      "conflicts_detected": false,
+      "citations_emitted": 2,
+      "claims_count": 2,
+      "latency_ms": 0.71,
+      "warnings_count": 0
+    },
+    "numerical_accuracy": {
+      "query": "What is the backup retention period?",
+      "grounding_status": "fully_grounded",
+      "insufficient_evidence": false,
+      "conflicts_detected": false,
+      "citations_emitted": 1,
+      "claims_count": 1,
+      "latency_ms": 0.43,
+      "warnings_count": 0
+    },
+    "table_assertions": {
+      "query": "What is the timeout for the payment gateway?",
+      "grounding_status": "fully_grounded",
+      "insufficient_evidence": false,
+      "conflicts_detected": false,
+      "citations_emitted": 1,
+      "claims_count": 1,
+      "latency_ms": 0.43,
+      "warnings_count": 0
+    },
+    "enterprise_identifiers": {
+      "query": "Which standard and clause governs data encryption?",
+      "grounding_status": "fully_grounded",
+      "insufficient_evidence": false,
+      "conflicts_detected": false,
+      "citations_emitted": 1,
+      "claims_count": 1,
+      "latency_ms": 0.48,
+      "warnings_count": 0
+    },
+    "paraphrased_query": {
+      "query": "Can you explain how long snapshots are kept?",
+      "grounding_status": "fully_grounded",
+      "insufficient_evidence": false,
+      "conflicts_detected": false,
+      "citations_emitted": 1,
+      "claims_count": 1,
+      "latency_ms": 0.4,
+      "warnings_count": 0
+    },
+    "insufficient_evidence": {
+      "query": "What is the corporate travel reimbursement limit in Tokyo?",
+      "grounding_status": "insufficient_evidence",
+      "insufficient_evidence": true,
+      "conflicts_detected": false,
+      "citations_emitted": 0,
+      "claims_count": 0,
+      "latency_ms": 0.03,
+      "warnings_count": 1
+    },
+    "conflicting_evidence": {
+      "query": "What is the data retention period?",
+      "grounding_status": "fully_grounded",
+      "insufficient_evidence": false,
+      "conflicts_detected": true,
+      "citations_emitted": 2,
+      "claims_count": 2,
+      "latency_ms": 0.55,
+      "warnings_count": 0
+    },
+    "prompt_injection_defense": {
+      "query": "What is the backup schedule?",
+      "grounding_status": "fully_grounded",
+      "insufficient_evidence": false,
+      "conflicts_detected": false,
+      "citations_emitted": 1,
+      "claims_count": 1,
+      "latency_ms": 0.47,
+      "warnings_count": 0
+    },
+    "citation_edge_cases": {
+      "query": "What is the password requirement?",
+      "grounding_status": "partially_grounded",
+      "insufficient_evidence": false,
+      "conflicts_detected": false,
+      "citations_emitted": 1,
+      "claims_count": 2,
+      "latency_ms": 0.39,
+      "warnings_count": 2
+    }
+  }
+}

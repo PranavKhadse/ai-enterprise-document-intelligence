@@ -50,6 +50,28 @@ from backend.app.schemas.reranking import (
     RAGContextItem,
     RerankedRetrievalResponse,
 )
+from backend.app.schemas.rag import (
+    GroundingStatus,
+    ClaimStatus,
+    RAGQueryRequest,
+    Citation,
+    ClaimVerification,
+    LLMClaimProposal,
+    LLMAnswerProposal,
+    RAGDiagnostics,
+    RAGAnswer,
+)
+from backend.app.schemas.comparison import (
+    DiffType,
+    ConflictSeverity,
+    EntityType,
+    EntityDiffItem,
+    AlignedClause,
+    ComparisonStatistics,
+    ComparisonDiagnostics,
+    DocumentComparisonRequest,
+    DocumentComparisonResponse,
+)
 
 __all__ = [
     "HealthResponse",
@@ -87,4 +109,22 @@ __all__ = [
     "RerankingDiagnostics",
     "RAGContextItem",
     "RerankedRetrievalResponse",
+    "GroundingStatus",
+    "ClaimStatus",
+    "RAGQueryRequest",
+    "Citation",
+    "ClaimVerification",
+    "LLMClaimProposal",
+    "LLMAnswerProposal",
+    "RAGDiagnostics",
+    "RAGAnswer",
+    "DiffType",
+    "ConflictSeverity",
+    "EntityType",
+    "EntityDiffItem",
+    "AlignedClause",
+    "ComparisonStatistics",
+    "ComparisonDiagnostics",
+    "DocumentComparisonRequest",
+    "DocumentComparisonResponse",
 ]
