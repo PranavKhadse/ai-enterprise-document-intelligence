@@ -110,6 +110,15 @@ class Settings(BaseSettings):
     RAG_LEXICAL_SUPPORT_THRESHOLD: float = 0.35
     RAG_CONFLICT_DETECTION_ENABLED: bool = True
 
+    # Phase 10 Authentication, JWT & RBAC Settings
+    JWT_SECRET_KEY: str = "dev-insecure-jwt-secret-key-change-in-production-min-32-chars"
+    JWT_ALGORITHM: str = "HS256"
+    JWT_ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
+    JWT_ISSUER: str = "enterprise-document-platform"
+    JWT_AUDIENCE: str = "enterprise-document-platform-api"
+    JWT_TOKEN_VERSION_CLAIM: str = "token_version"
+    SECURITY_PASSWORD_ITERATIONS: int = 100000
+
     # Database Settings
     POSTGRES_SERVER: str = "localhost"
     POSTGRES_PORT: int = 5432

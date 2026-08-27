@@ -1,10 +1,13 @@
 from fastapi import APIRouter
-from backend.app.api.v1.endpoints import comparison, documents, health, rag
+from backend.app.api.v1.endpoints import auth, comparison, documents, health, rag
 
 api_router = APIRouter()
 
 # Include health check endpoints under /api/v1
 api_router.include_router(health.router, tags=["System Health"])
+
+# Include authentication & user management endpoints under /api/v1/auth
+api_router.include_router(auth.router, prefix="/auth", tags=["Authentication & RBAC"])
 
 # Include document upload & management endpoints under /api/v1/documents
 api_router.include_router(documents.router, prefix="/documents", tags=["Documents"])

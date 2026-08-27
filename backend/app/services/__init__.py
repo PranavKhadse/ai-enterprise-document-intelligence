@@ -3,7 +3,7 @@ Services package exposing storage, parser, chunker, embedding, vector store, BM2
 dual indexing, query analysis, fusion, hybrid retrieval, evaluation, optimizer,
 cross-encoder reranking, context compression, evidence selection, reranking pipeline,
 LLM providers, prompt builder, citation verifier, grounding verifier, RAG synthesis, RAG pipeline,
-clause extractor, clause aligner, entity diff engine, and document comparator.
+clause extractor, clause aligner, entity diff engine, document comparator, and auth service.
 """
 from backend.app.services.storage import (
     LocalFileStorage,
@@ -144,6 +144,10 @@ from backend.app.services.document_comparator import (
     LLMDiffProposal,
     document_comparator,
 )
+from backend.app.services.auth_service import (
+    AuthService,
+    auth_service,
+)
 
 __all__ = [
     "LocalFileStorage",
@@ -231,4 +235,6 @@ __all__ = [
     "DocumentComparatorService",
     "LLMDiffProposal",
     "document_comparator",
+    "AuthService",
+    "auth_service",
 ]

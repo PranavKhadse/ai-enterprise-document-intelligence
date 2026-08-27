@@ -3,7 +3,7 @@ User ORM model.
 """
 import uuid
 from typing import TYPE_CHECKING, List, Optional
-from sqlalchemy import Boolean, ForeignKey, String
+from sqlalchemy import Boolean, ForeignKey, Integer, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.types import Uuid
 from backend.app.db.base import Base, TimestampMixin, UUIDPrimaryKeyMixin
@@ -39,6 +39,11 @@ class User(Base, UUIDPrimaryKeyMixin, TimestampMixin):
     is_active: Mapped[bool] = mapped_column(
         Boolean,
         default=True,
+        nullable=False,
+    )
+    token_version: Mapped[int] = mapped_column(
+        Integer,
+        default=1,
         nullable=False,
     )
 

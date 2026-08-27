@@ -26,11 +26,16 @@ class FusionStrategy(str, Enum):
 class RetrievalFilter(BaseModel):
     """
     Standardized filter model applied consistently to Qdrant and BM25.
+    Supports pre-retrieval authorization constraints for department isolation and clearance levels.
     """
     document_id: Optional[uuid.UUID] = Field(None, description="Optional document UUID filter")
     version_id: Optional[uuid.UUID] = Field(None, description="Optional version UUID filter")
     department_id: Optional[uuid.UUID] = Field(None, description="Optional department UUID filter")
     is_table: Optional[bool] = Field(None, description="Optional table chunk filter")
+    allowed_department_ids: Optional[List[uuid.UUID]] = Field(None, description="List of permitted department UUIDs")
+    max_clearance_level: Optional[int] = Field(None, ge=1, le=4, description="Maximum security clearance level permitted")
+    allowed_roles: Optional[List[str]] = Field(None, description="List of permitted roles")
+    allowed_document_ids: Optional[List[uuid.UUID]] = Field(None, description="Permitted document IDs")
 
     model_config = ConfigDict(from_attributes=True)
 

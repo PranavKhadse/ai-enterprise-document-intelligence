@@ -1,12 +1,12 @@
 """
-Hybrid Retrieval Orchestration Service.
-Coordinates parallel dense and sparse retrieval, query-aware parameter tuning,
-metadata filter enforcement, rank/score fusion, degraded-mode fault tolerance, and diagnostics.
+Hybrid Retrieval and Rank Fusion Service.
+Orchestrates parallel dense vector search (Qdrant) and sparse inverted index search (BM25)
+with query-aware adaptive parameter tuning, rank/score fusion, and pre-retrieval RBAC filtering.
 """
 import asyncio
 import time
-import uuid
 from typing import List, Optional
+import uuid
 from backend.app.core.config import settings
 from backend.app.schemas.bm25 import BM25SearchResult
 from backend.app.schemas.embedding import VectorSearchResult
@@ -16,7 +16,6 @@ from backend.app.schemas.retrieval import (
     QueryType,
     RetrievalDiagnostics,
     RetrievalFilter,
-    ScoredChunk,
 )
 from backend.app.services.bm25 import BM25IndexService, bm25_service
 from backend.app.services.embedding import EmbeddingService, embedding_service
@@ -26,14 +25,13 @@ from backend.app.services.vector_store import VectorStoreService, vector_store_s
 
 
 class HybridRetrievalError(Exception):
-    """Raised when hybrid retrieval encounters unrecoverable errors across both backends."""
+    """Base exception for hybrid retrieval pipeline failures."""
     pass
 
 
 class HybridRetrievalService:
     """
-    Production-grade hybrid retrieval engine unifying Qdrant dense vector search
-    and BM25 sparse lexical search with Reciprocal Rank Fusion.
+    Coordinates multi-modal candidate generation and rank fusion with robust degraded-mode fallbacks.
     """
 
     def __init__(
@@ -63,6 +61,9 @@ class HybridRetrievalService:
         doc_id = filter_spec.document_id if filter_spec else None
         ver_id = filter_spec.version_id if filter_spec else None
         dept_id = filter_spec.department_id if filter_spec else None
+        allowed_depts = filter_spec.allowed_department_ids if filter_spec else None
+        allowed_docs = filter_spec.allowed_document_ids if filter_spec else None
+        max_clearance = filter_spec.max_clearance_level if filter_spec else None
 
         return self.vector_service.search_vectors(
             query_vector=query_vector,
@@ -70,6 +71,9 @@ class HybridRetrievalService:
             document_id=doc_id,
             version_id=ver_id,
             department_id=dept_id,
+            allowed_department_ids=allowed_depts,
+            allowed_document_ids=allowed_docs,
+            max_clearance_level=max_clearance,
         )
 
     def _execute_sparse_search(
@@ -84,6 +88,9 @@ class HybridRetrievalService:
         doc_id = filter_spec.document_id if filter_spec else None
         ver_id = filter_spec.version_id if filter_spec else None
         dept_id = filter_spec.department_id if filter_spec else None
+        allowed_depts = filter_spec.allowed_department_ids if filter_spec else None
+        allowed_docs = filter_spec.allowed_document_ids if filter_spec else None
+        max_clearance = filter_spec.max_clearance_level if filter_spec else None
 
         return self.sparse_service.search(
             query=query,
@@ -91,6 +98,9 @@ class HybridRetrievalService:
             document_id=doc_id,
             version_id=ver_id,
             department_id=dept_id,
+            allowed_department_ids=allowed_depts,
+            allowed_document_ids=allowed_docs,
+            max_clearance_level=max_clearance,
         )
 
     async def retrieve(

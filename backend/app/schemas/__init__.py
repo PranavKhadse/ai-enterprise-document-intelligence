@@ -72,6 +72,15 @@ from backend.app.schemas.comparison import (
     DocumentComparisonRequest,
     DocumentComparisonResponse,
 )
+from backend.app.schemas.auth import (
+    RoleResponse,
+    DepartmentResponse,
+    UserRegisterRequest,
+    UserLoginRequest,
+    UserResponse,
+    TokenResponse,
+    RBACContext,
+)
 
 __all__ = [
     "HealthResponse",
@@ -127,4 +136,11 @@ __all__ = [
     "ComparisonDiagnostics",
     "DocumentComparisonRequest",
     "DocumentComparisonResponse",
+    "RoleResponse",
+    "DepartmentResponse",
+    "UserRegisterRequest",
+    "UserLoginRequest",
+    "UserResponse",
+    "TokenResponse",
+    "RBACContext",
 ]

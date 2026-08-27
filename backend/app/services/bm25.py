@@ -1,17 +1,18 @@
 """
 BM25 Sparse Lexical Search Engine with Inverted Indexing.
 Implements BM25Okapi scoring, enterprise tokenization, payload filtering,
-stale posting purging, snapshot rollback on failure, and atomic disk persistence.
+stale posting purging, snapshot rollback on failure, atomic disk persistence,
+and pre-retrieval RBAC authorization filtering.
 """
+from collections import Counter, defaultdict
 import copy
 import math
 import os
+from pathlib import Path
 import pickle
 import re
-import uuid
-from collections import Counter, defaultdict
-from pathlib import Path
 from typing import Any, Dict, List, Optional, Set, Tuple
+import uuid
 from backend.app.core.config import settings
 from backend.app.db.models.document import Document
 from backend.app.db.models.document_chunk import DocumentChunk
@@ -176,6 +177,7 @@ class BM25IndexService:
                     "department_id": str(document.department_id) if document.department_id else None,
                     "is_table": meta.get("is_table", False),
                     "token_count": chunk.token_count or doc_len,
+                    "clearance_level": meta.get("clearance_level", 1),
                 }
                 self.doc_metadata[chunk_id] = payload
 
@@ -205,6 +207,15 @@ class BM25IndexService:
             self._restore_snapshot(snapshot)
             raise BM25Error(f"BM25 indexing failed for document {document.id}: {str(e)}")
 
+    def index_document_chunks(
+        self,
+        document: Document,
+        chunks: List[DocumentChunk],
+        auto_persist: Optional[bool] = None,
+    ) -> int:
+        """Alias for index_chunks to support (document, chunks) signature."""
+        return self.index_chunks(chunks, document, auto_persist=auto_persist)
+
     def search(
         self,
         query: str,
@@ -212,9 +223,12 @@ class BM25IndexService:
         document_id: Optional[uuid.UUID] = None,
         version_id: Optional[uuid.UUID] = None,
         department_id: Optional[uuid.UUID] = None,
+        allowed_department_ids: Optional[List[uuid.UUID]] = None,
+        allowed_document_ids: Optional[List[uuid.UUID]] = None,
+        max_clearance_level: Optional[int] = None,
     ) -> List[BM25SearchResult]:
         """
-        Executes BM25Okapi scoring across matching postings with optional metadata filtering.
+        Executes BM25Okapi scoring across matching postings with optional metadata and RBAC pre-filtering.
         """
         q_terms = self.tokenize(query)
         if not q_terms or self.corpus_size == 0:
@@ -223,6 +237,8 @@ class BM25IndexService:
         doc_id_str = str(document_id) if document_id else None
         ver_id_str = str(version_id) if version_id else None
         dept_id_str = str(department_id) if department_id else None
+        allowed_dept_strs = {str(d) for d in allowed_department_ids} if allowed_department_ids is not None else None
+        allowed_doc_strs = {str(d) for d in allowed_document_ids} if allowed_document_ids is not None else None
 
         k1 = self.config.k1
         b = self.config.b
@@ -250,6 +266,12 @@ class BM25IndexService:
                 if ver_id_str and meta.get("version_id") != ver_id_str:
                     continue
                 if dept_id_str and meta.get("department_id") != dept_id_str:
+                    continue
+                if allowed_dept_strs is not None and meta.get("department_id") not in allowed_dept_strs:
+                    continue
+                if allowed_doc_strs is not None and meta.get("document_id") not in allowed_doc_strs:
+                    continue
+                if max_clearance_level is not None and meta.get("clearance_level", 1) > max_clearance_level:
                     continue
 
                 doc_len = self.doc_lengths.get(chunk_id, 0)

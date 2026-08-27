@@ -13,8 +13,10 @@ from qdrant_client.http.models import (
     Filter,
     FilterSelector,
     HnswConfigDiff,
+    MatchAny,
     MatchValue,
     PointStruct,
+    Range,
     VectorParams,
 )
 from backend.app.core.config import settings
@@ -121,6 +123,9 @@ class VectorStoreService:
         document_id: Optional[uuid.UUID] = None,
         version_id: Optional[uuid.UUID] = None,
         department_id: Optional[uuid.UUID] = None,
+        allowed_department_ids: Optional[List[uuid.UUID]] = None,
+        allowed_document_ids: Optional[List[uuid.UUID]] = None,
+        max_clearance_level: Optional[int] = None,
     ) -> List[VectorSearchResult]:
         """
         Executes a vector similarity search with optional payload pre-filtering.
@@ -139,6 +144,18 @@ class VectorStoreService:
         if department_id:
             must_conditions.append(
                 FieldCondition(key="department_id", match=MatchValue(value=str(department_id)))
+            )
+        if allowed_department_ids:
+            must_conditions.append(
+                FieldCondition(key="department_id", match=MatchAny(any=[str(did) for did in allowed_department_ids]))
+            )
+        if allowed_document_ids:
+            must_conditions.append(
+                FieldCondition(key="document_id", match=MatchAny(any=[str(did) for did in allowed_document_ids]))
+            )
+        if max_clearance_level is not None:
+            must_conditions.append(
+                FieldCondition(key="clearance_level", range=Range(lte=max_clearance_level))
             )
 
         query_filter = Filter(must=must_conditions) if must_conditions else None
