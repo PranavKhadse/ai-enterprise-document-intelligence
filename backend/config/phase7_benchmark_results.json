@@ -60,9 +60,9 @@
       "ndcg_at_5": 0.985,
       "precision_at_3": 0.333,
       "precision_at_5": 0.2,
-      "avg_latency_ms": 88.3,
-      "p50_latency_ms": 71.04,
-      "p95_latency_ms": 169.97
+      "avg_latency_ms": 89.63,
+      "p50_latency_ms": 72.78,
+      "p95_latency_ms": 173.6
     },
     "K=20": {
       "recall_at_1": 0.958,
@@ -74,9 +74,9 @@
       "ndcg_at_5": 0.985,
       "precision_at_3": 0.333,
       "precision_at_5": 0.2,
-      "avg_latency_ms": 250.19,
-      "p50_latency_ms": 290.2,
-      "p95_latency_ms": 348.33
+      "avg_latency_ms": 239.71,
+      "p50_latency_ms": 259.48,
+      "p95_latency_ms": 340.1
     },
     "K=25": {
       "recall_at_1": 0.958,
@@ -88,9 +88,9 @@
       "ndcg_at_5": 0.985,
       "precision_at_3": 0.333,
       "precision_at_5": 0.2,
-      "avg_latency_ms": 304.55,
-      "p50_latency_ms": 328.29,
-      "p95_latency_ms": 394.11
+      "avg_latency_ms": 284.37,
+      "p50_latency_ms": 290.1,
+      "p95_latency_ms": 359.28
     },
     "K=30": {
       "recall_at_1": 0.958,
@@ -102,9 +102,9 @@
       "ndcg_at_5": 0.985,
       "precision_at_3": 0.333,
       "precision_at_5": 0.2,
-      "avg_latency_ms": 343.77,
-      "p50_latency_ms": 344.64,
-      "p95_latency_ms": 464.42
+      "avg_latency_ms": 307.13,
+      "p50_latency_ms": 310.68,
+      "p95_latency_ms": 360.6
     },
     "K=50": {
       "recall_at_1": 0.958,
@@ -116,9 +116,9 @@
       "ndcg_at_5": 0.985,
       "precision_at_3": 0.333,
       "precision_at_5": 0.2,
-      "avg_latency_ms": 415.3,
-      "p50_latency_ms": 437.1,
-      "p95_latency_ms": 487.2
+      "avg_latency_ms": 302.09,
+      "p50_latency_ms": 297.1,
+      "p95_latency_ms": 378.77
     }
   },
   "token_reduction": {
@@ -128,23 +128,23 @@
   },
   "latency_profile_ms": {
     "cold_start": {
-      "model_load_ms": 1551.22,
-      "first_inference_ms": 371.87,
-      "cold_start_total_ms": 1923.09
+      "model_load_ms": 1956.88,
+      "first_inference_ms": 316.23,
+      "cold_start_total_ms": 2273.11
     },
     "warm_inference": {
-      "average_ms": 776.52,
-      "p50_ms": 800.27,
-      "p95_ms": 892.48,
-      "p99_ms": 910.25
+      "average_ms": 743.8,
+      "p50_ms": 774.08,
+      "p95_ms": 818.67,
+      "p99_ms": 875.99
     },
     "component_breakdown": {
       "candidate_prep_avg_ms": 0.03,
-      "tokenization_avg_ms": 1.87,
-      "onnx_inference_avg_ms": 442.95,
+      "tokenization_avg_ms": 2.02,
+      "onnx_inference_avg_ms": 421.06,
       "score_processing_avg_ms": 0.01,
-      "compression_avg_ms": 0.56,
-      "evidence_selection_avg_ms": 0.39
+      "compression_avg_ms": 0.51,
+      "evidence_selection_avg_ms": 0.38
     }
   }
 }

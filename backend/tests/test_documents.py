@@ -197,3 +197,97 @@ async def test_upload_with_department_association(document_test_env, mock_pdf_by
     res_data = response.json()
     assert res_data["department_id"] == str(dept_id)
     assert res_data["title"] == "SOC2 Compliance Guide"
+
+
+@pytest.mark.asyncio
+async def test_list_documents_pagination_and_filter(document_test_env, mock_pdf_bytes):
+    """
+    Test GET /api/v1/documents returns paginated list with total count and supports search filter.
+    """
+    client, _ = document_test_env
+
+    # Upload 2 documents
+    files1 = {"file": ("alpha_handbook.pdf", io.BytesIO(mock_pdf_bytes), "application/pdf")}
+    await client.post("/api/v1/documents/upload", files=files1, data={"title": "Alpha Handbook"})
+
+    files2 = {"file": ("beta_policy.pdf", io.BytesIO(mock_pdf_bytes + b" unique"), "application/pdf")}
+    await client.post("/api/v1/documents/upload", files=files2, data={"title": "Beta Policy"})
+
+    # List all
+    res = await client.get("/api/v1/documents?limit=10&offset=0")
+    assert res.status_code == 200
+    data = res.json()
+    assert data["total"] == 2
+    assert len(data["items"]) == 2
+
+    # Search filter
+    search_res = await client.get("/api/v1/documents?query=Alpha")
+    assert search_res.status_code == 200
+    search_data = search_res.json()
+    assert search_data["total"] == 1
+    assert search_data["items"][0]["title"] == "Alpha Handbook"
+
+
+@pytest.mark.asyncio
+async def test_get_document_detail_and_not_found(document_test_env, mock_pdf_bytes):
+    """
+    Test GET /api/v1/documents/{id} returns single document metadata and handles 404.
+    """
+    client, _ = document_test_env
+
+    files = {"file": ("eng_runbook.pdf", io.BytesIO(mock_pdf_bytes), "application/pdf")}
+    up_res = await client.post("/api/v1/documents/upload", files=files, data={"title": "Engineering Runbook"})
+    doc_id = up_res.json()["id"]
+
+    # Get valid
+    get_res = await client.get(f"/api/v1/documents/{doc_id}")
+    assert get_res.status_code == 200
+    assert get_res.json()["id"] == doc_id
+    assert get_res.json()["title"] == "Engineering Runbook"
+
+    # Get non-existent
+    non_existent = str(uuid.uuid4())
+    nf_res = await client.get(f"/api/v1/documents/{non_existent}")
+    assert nf_res.status_code == 404
+
+
+@pytest.mark.asyncio
+async def test_delete_document_and_audit(document_test_env, mock_pdf_bytes):
+    """
+    Test DELETE /api/v1/documents/{id} removes document and returns success message.
+    """
+    client, _ = document_test_env
+
+    files = {"file": ("deprecated_spec.pdf", io.BytesIO(mock_pdf_bytes), "application/pdf")}
+    up_res = await client.post("/api/v1/documents/upload", files=files, data={"title": "Deprecated Spec"})
+    doc_id = up_res.json()["id"]
+
+    # Delete
+    del_res = await client.delete(f"/api/v1/documents/{doc_id}")
+    assert del_res.status_code == 200
+    assert del_res.json()["success"] is True
+
+    # Verify document no longer exists
+    nf_res = await client.get(f"/api/v1/documents/{doc_id}")
+    assert nf_res.status_code == 404
+
+
+@pytest.mark.asyncio
+async def test_search_documents_endpoint(document_test_env):
+    """
+    Test POST /api/v1/documents/search returns HybridRetrievalResponse.
+    """
+    client, _ = document_test_env
+
+    # Empty query rejected
+    bad_res = await client.post("/api/v1/documents/search", json={"query": "  "})
+    assert bad_res.status_code == 400
+
+    # Valid search request
+    search_res = await client.post("/api/v1/documents/search", json={"query": "security policy guidelines"})
+    assert search_res.status_code == 200
+    search_data = search_res.json()
+    assert "results" in search_data
+    assert "diagnostics" in search_data
+    assert search_data["diagnostics"]["query"] == "security policy guidelines"
+

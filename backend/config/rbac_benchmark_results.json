@@ -1,6 +1,6 @@
 {
   "benchmark_name": "Phase 10 RBAC & Security Red-Team Benchmark",
-  "evaluated_at": "2026-08-27T15:01:21.882927+00:00",
+  "evaluated_at": "2026-08-28T17:01:25.588722+00:00",
   "total_scenarios": 10,
   "passed_scenarios": 10,
   "failed_scenarios": 0,
@@ -12,7 +12,7 @@
       "description": "Unauthenticated request without Authorization header returns 401",
       "defense_mechanism": "FastAPI OAuth2PasswordBearer dependency guard",
       "passed": true,
-      "latency_ms": 3.65
+      "latency_ms": 3.66
     },
     {
       "id": 2,
@@ -20,7 +20,7 @@
       "description": "Cryptographically expired token is rejected with 401",
       "defense_mechanism": "Cryptographic 'exp' timestamp verification",
       "passed": true,
-      "latency_ms": 3.44
+      "latency_ms": 3.32
     },
     {
       "id": 3,
@@ -28,7 +28,7 @@
       "description": "Token with modified signature bytes is rejected with 401",
       "defense_mechanism": "HMAC-SHA256 constant-time signature verification",
       "passed": true,
-      "latency_ms": 4.06
+      "latency_ms": 3.11
     },
     {
       "id": 4,
@@ -36,7 +36,7 @@
       "description": "Token with tampered payload claims triggers signature mismatch 401",
       "defense_mechanism": "Cryptographic payload-signature binding integrity check",
       "passed": true,
-      "latency_ms": 3.5
+      "latency_ms": 4.96
     },
     {
       "id": 5,
@@ -44,7 +44,7 @@
       "description": "alg=none unsigned token attack is strictly rejected with 401",
       "defense_mechanism": "Explicit algorithm validation rejecting 'none' and non-HS256 algorithms",
       "passed": true,
-      "latency_ms": 3.11
+      "latency_ms": 3.7
     },
     {
       "id": 6,
@@ -60,7 +60,7 @@
       "description": "Public registration self-assigning Admin/Legal is stripped to Employee (L1)",
       "defense_mechanism": "Privileged role filtering in user registration service",
       "passed": true,
-      "latency_ms": 101.42
+      "latency_ms": 97.87
     },
     {
       "id": 8,
@@ -68,7 +68,7 @@
       "description": "Department pre-filtering guarantees 0 unauthorized department chunks retrieved",
       "defense_mechanism": "Pre-retrieval inverted index metadata boolean constraint evaluation",
       "passed": true,
-      "latency_ms": 0.37
+      "latency_ms": 0.56
     },
     {
       "id": 9,
@@ -76,7 +76,7 @@
       "description": "Clearance pre-filtering blocks high-clearance chunks (L3) for L1 queries",
       "defense_mechanism": "Pre-retrieval clearance level ceiling enforcement",
       "passed": true,
-      "latency_ms": 0.01
+      "latency_ms": 0.02
     },
     {
       "id": 10,
@@ -84,7 +84,7 @@
       "description": "Token with stale token_version is immediately rejected upon server-side increment",
       "defense_mechanism": "Stateful token_version claim validation against database user record",
       "passed": true,
-      "latency_ms": 20.79
+      "latency_ms": 20.7
     }
   ]
 }

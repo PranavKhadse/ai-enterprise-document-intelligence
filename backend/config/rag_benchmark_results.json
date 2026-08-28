@@ -7,7 +7,7 @@
     "conflict_detection_accuracy_rate": 1.0,
     "fabricated_citation_rejection_count": 1,
     "total_verified_citations_emitted": 11,
-    "avg_latency_ms": 0.69
+    "avg_latency_ms": 0.47
   },
   "scenarios": {
     "direct_factual": {
@@ -17,7 +17,7 @@
       "conflicts_detected": false,
       "citations_emitted": 1,
       "claims_count": 1,
-      "latency_ms": 0.88,
+      "latency_ms": 0.74,
       "warnings_count": 0
     },
     "multi_document": {
@@ -27,7 +27,7 @@
       "conflicts_detected": false,
       "citations_emitted": 2,
       "claims_count": 2,
-      "latency_ms": 0.93,
+      "latency_ms": 0.73,
       "warnings_count": 0
     },
     "numerical_accuracy": {
@@ -37,7 +37,7 @@
       "conflicts_detected": false,
       "citations_emitted": 1,
       "claims_count": 1,
-      "latency_ms": 0.57,
+      "latency_ms": 0.42,
       "warnings_count": 0
     },
     "table_assertions": {
@@ -47,7 +47,7 @@
       "conflicts_detected": false,
       "citations_emitted": 1,
       "claims_count": 1,
-      "latency_ms": 0.67,
+      "latency_ms": 0.4,
       "warnings_count": 0
     },
     "enterprise_identifiers": {
@@ -57,7 +57,7 @@
       "conflicts_detected": false,
       "citations_emitted": 1,
       "claims_count": 1,
-      "latency_ms": 0.64,
+      "latency_ms": 0.44,
       "warnings_count": 0
     },
     "paraphrased_query": {
@@ -67,7 +67,7 @@
       "conflicts_detected": false,
       "citations_emitted": 1,
       "claims_count": 1,
-      "latency_ms": 0.79,
+      "latency_ms": 0.37,
       "warnings_count": 0
     },
     "insufficient_evidence": {
@@ -77,7 +77,7 @@
       "conflicts_detected": false,
       "citations_emitted": 0,
       "claims_count": 0,
-      "latency_ms": 0.03,
+      "latency_ms": 0.02,
       "warnings_count": 1
     },
     "conflicting_evidence": {
@@ -87,7 +87,7 @@
       "conflicts_detected": true,
       "citations_emitted": 2,
       "claims_count": 2,
-      "latency_ms": 0.91,
+      "latency_ms": 0.6,
       "warnings_count": 0
     },
     "prompt_injection_defense": {
@@ -97,7 +97,7 @@
       "conflicts_detected": false,
       "citations_emitted": 1,
       "claims_count": 1,
-      "latency_ms": 0.83,
+      "latency_ms": 0.53,
       "warnings_count": 0
     },
     "citation_edge_cases": {
@@ -107,7 +107,7 @@
       "conflicts_detected": false,
       "citations_emitted": 1,
       "claims_count": 2,
-      "latency_ms": 0.66,
+      "latency_ms": 0.45,
       "warnings_count": 2
     }
   }

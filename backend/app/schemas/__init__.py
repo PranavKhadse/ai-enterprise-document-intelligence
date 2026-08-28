@@ -2,7 +2,14 @@
 Pydantic schemas and Data Transfer Objects (DTOs).
 """
 from backend.app.schemas.health import HealthResponse
-from backend.app.schemas.document import DocumentUploadResponse
+from backend.app.schemas.document import (
+    DocumentChunkResponse,
+    DocumentChunksListResponse,
+    DocumentItemResponse,
+    DocumentListResponse,
+    DocumentSearchRequest,
+    DocumentUploadResponse,
+)
 from backend.app.schemas.parser import (
     ElementType,
     ParsedElement,

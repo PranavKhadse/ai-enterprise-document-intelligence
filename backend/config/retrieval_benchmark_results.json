@@ -1,6 +1,6 @@
 {
   "benchmark_version": "1.0.0",
-  "generated_at": "2026-08-27T15:03:56.852913+00:00",
+  "generated_at": "2026-08-28T17:03:55.492822+00:00",
   "total_configurations_evaluated": 600,
   "tuning_queries_count": 16,
   "validation_queries_count": 8,
@@ -131,34 +131,34 @@
     {
       "strategy": "dense_only",
       "iterations": 80,
-      "avg_ms": 119.2,
-      "p50_ms": 117.6,
-      "p95_ms": 137.02,
-      "p99_ms": 156.83
+      "avg_ms": 121.25,
+      "p50_ms": 120.08,
+      "p95_ms": 151.4,
+      "p99_ms": 159.97
     },
     {
       "strategy": "sparse_only",
       "iterations": 80,
-      "avg_ms": 119.24,
-      "p50_ms": 118.62,
-      "p95_ms": 136.14,
-      "p99_ms": 145.52
+      "avg_ms": 117.17,
+      "p50_ms": 116.95,
+      "p95_ms": 133.44,
+      "p99_ms": 136.28
     },
     {
       "strategy": "default_rrf",
       "iterations": 80,
-      "avg_ms": 118.04,
-      "p50_ms": 117.13,
-      "p95_ms": 135.24,
-      "p99_ms": 144.74
+      "avg_ms": 121.39,
+      "p50_ms": 120.14,
+      "p95_ms": 141.11,
+      "p99_ms": 156.34
     },
     {
       "strategy": "weighted_score",
       "iterations": 80,
-      "avg_ms": 118.14,
-      "p50_ms": 117.06,
-      "p95_ms": 136.86,
-      "p99_ms": 139.11
+      "avg_ms": 121.21,
+      "p50_ms": 120.92,
+      "p95_ms": 147.42,
+      "p99_ms": 154.95
     }
   ],
   "recommendation_decision": "Best empirical configuration (RRF k=20, w_dense=0.3, w_sparse=0.7, pool=20) confirmed on validation set. Validation Recall@10: 1.000 vs Default: 1.000.",

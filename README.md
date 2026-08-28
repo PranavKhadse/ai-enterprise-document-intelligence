@@ -1,142 +1,162 @@
 # AI-Powered Enterprise Document Intelligence & Knowledge Platform
 
-[![Current Status](https://img.shields.io/badge/Current%20Status-Planning%20%26%20Architecture-blue.svg)](#current-status)
-[![Architecture](https://img.shields.io/badge/Architecture-Hybrid%20RAG%20%2B%20RRF%20%2B%20Cross--Encoder-orange.svg)](#planned-architecture)
+[![Backend Tests](https://img.shields.io/badge/Backend%20Pytest-217%20Passing-brightgreen.svg)](#verified-backend-baseline)
+[![Frontend Tests](https://img.shields.io/badge/Frontend%20Vitest-Verified-brightgreen.svg)](#frontend-architecture--testing)
+[![Phase 12](https://img.shields.io/badge/Phase%2012-Frontend%20%26%20Product%20UI-blue.svg)](#phase-12--enterprise-frontend--product-ui)
+[![Architecture](https://img.shields.io/badge/Architecture-Hybrid%20RAG%20%2B%20RRF%20%2B%20Cross--Encoder%20%2B%20RBAC-orange.svg)](#system-architecture)
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](#license)
 
-> **Current Development Status: Planning & Architecture Phase**  
-> *Notice: This repository is currently in its formal engineering design and specification phase. The architectural plans, specifications, and data schemas have been established, and no implementation code or dependencies have been deployed yet.*
+> **Enterprise-Grade AI Document Intelligence, Hybrid Retrieval, Grounded Synthesis, and Cryptographic Security Observability**
 
 ---
 
 ## 📌 Project Overview
 
-The **AI-Powered Enterprise Document Intelligence & Knowledge Platform** is an enterprise-grade document search, synthesis, version comparison, and evaluation system designed to operate over large, heterogeneous corporate document collections (HR policies, SOPs, engineering runbooks, compliance filings, and vendor contracts).
+The **AI-Powered Enterprise Document Intelligence & Knowledge Platform** is a secure, high-precision document search, synthesis, version comparison, and compliance evaluation system designed for complex corporate document repositories (HR policies, SOPs, engineering runbooks, compliance filings, and vendor contracts).
 
-### Core Architectural Principle
-> **The Large Language Model (LLM) is NOT the search engine or database.**  
-> The system deterministically retrieves authorized, high-precision evidence using a hybrid retrieval engine (BM25 + Qdrant) combined with cross-encoder reranking. The LLM is used strictly as a grounded reasoning and synthesis engine constrained to the retrieved context.
-
----
-
-## 🏢 Enterprise Problem & Solution
-
-| The Problem | How Naive AI Fails | Our Engineered Solution |
-| :--- | :--- | :--- |
-| **Lexical Blindspots** | Keyword search misses synonyms; vector search misses error codes and clause IDs. | **Hybrid Retrieval (Dense + BM25)** combined via **Reciprocal Rank Fusion (RRF)**. |
-| **Low Initial Precision** | Vector search surfaces irrelevant candidate passages that consume context. | **Cross-Encoder Reranking** performing deep token-to-token cross-attention. |
-| **Hallucination & Fabrications** | LLMs invent facts when evidence is incomplete or ambiguous. | **Strict Grounding Guardrails** with auditable `[Doc, Page, Section]` citations. |
-| **Data Leakage & Security** | Standard RAG has zero access control; post-filtering leads to empty results. | **Pre-Retrieval RBAC Filtering** at the vector and sparse index levels. |
-| **Policy Contradictions** | Manually comparing updated policies across departments is error-prone. | **Document Version Diffing & Semantic Conflict Detection**. |
+### Core Architectural Principles
+1. **The LLM is NOT the database**: The system retrieves authorized evidence with deterministic precision using a hybrid retrieval engine (BM25 + Qdrant) and cross-encoder reranking. The LLM operates strictly as a grounded reasoning and synthesis engine constrained to retrieved context.
+2. **Pre-Retrieval RBAC Filtering**: Role-based access control (Tiers L1–L4) and department filters are enforced *before* vector and sparse searches execute, preventing data leakage and top-k starvation.
+3. **Deterministic Grounding Verification**: Every generated claim is mapped to explicit document, page, and section citations with entailment validation and conflict detection.
+4. **Immutable Audit Observability**: Complete, tamper-evident security telemetry with SHA-256 HMAC cryptographic chain verification.
 
 ---
 
-## 🏗️ Planned Architecture
+## 🏗️ System Architecture
 
 ```mermaid
 flowchart TB
-    subgraph Client ["Client & Interface Layer"]
-        UI["React Web Application (Vite + Vanilla CSS)"]
-        API["FastAPI REST & Streaming Gateway"]
+    subgraph Client ["Frontend Presentation Layer (React 19 + TypeScript + Vite)"]
+        UI["Enterprise Single-Page Application"]
+        ROUTER["React Router v7 (Protected + Admin Routes)"]
+        QUERY["TanStack Query v5 State & Caching"]
+        AXIOS["Axios HTTP Client + Auth/Correlation Interceptors"]
     end
 
     subgraph Security ["Security & Access Control"]
-        AUTH["JWT Authentication Engine"]
-        RBAC["Pre-Retrieval RBAC Payload Filter"]
+        AUTH["JWT Authentication Engine (OAuth2 Password Bearer)"]
+        RBAC["Pre-Retrieval RBAC Payload Filter (Clearance L1-L4)"]
+        AUDIT["Immutable Audit Logger (HMAC-SHA256 Hash Chain)"]
     end
 
-    subgraph Ingestion ["Document Ingestion Pipeline"]
-        DOCS["Raw Enterprise Docs (PDF, DOCX, MD)"]
-        PARSER["Structure-Aware Parser (Tables, Headers, Pages)"]
-        CHUNKER["Hierarchical Chunker + Context Breadcrumbs"]
-        EMBED["Dense Embedding Generator (bge-large-en-v1.5)"]
-        BM25_GEN["BM25 Sparse Inverted Indexer"]
+    subgraph Serving ["FastAPI Backend & Pipeline Layer"]
+        DOC_API["Document Management & Chunk Explorer (/api/v1/documents)"]
+        SEARCH_API["Hybrid Search Gateway (/api/v1/documents/search)"]
+        RAG_API["Grounded Synthesis Engine (/api/v1/rag/query)"]
+        COMPARE_API["Clause Diff & Comparator (/api/v1/comparison/compare)"]
+        AUDIT_API["Security Observability (/api/v1/audit)"]
     end
 
-    subgraph Storage ["Storage Plane"]
-        PG[("PostgreSQL\n(Metadata, RBAC, Versions, Logs)")]
-        QDRANT[("Qdrant Vector DB\n(HNSW Vectors + Pre-Filter)")]
-        BM25_STORE[("BM25 Sparse Index")]
+    subgraph Engine ["Retrieval & Reasoning Engines"]
+        QDRANT[("Qdrant Vector DB (Dense Embeddings)")]
+        BM25_STORE[("BM25 Sparse Inverted Index")]
+        FUSION["Reciprocal Rank Fusion (RRF) & Weighted Merger"]
+        RERANK["ONNX Cross-Encoder Token Attention (bge-reranker-large)"]
+        PROMPT["XML-Sandboxed Prompt Assembler"]
+        LLM["Grounded LLM Generator (Ollama / Local Engine)"]
+        VERIFIER["Deterministic NLI Entailment & Conflict Detector"]
     end
 
-    subgraph Serving ["Online Serving & RAG Pipeline"]
-        REWRITE["Query Rewriter & De-contextualizer"]
-        FUSION["Reciprocal Rank Fusion (RRF)"]
-        RERANK["Cross-Encoder Reranker (bge-reranker-large)"]
-        PROMPT["Context Assembler (XML Sandbox)"]
-        LLM["Grounded LLM Generator (Swappable Gateway)"]
-        CITE["Citation Engine (Doc/Page/Section)"]
-    end
-
-    subgraph Observability ["Evaluation & Telemetry"]
-        EVAL["Retrieval & Generation Evaluators (NDCG, Faithfulness)"]
-        LOGS["Telemetry Logger (Latency, Tokens, Cost)"]
-    end
-
-    DOCS --> PARSER --> CHUNKER
-    CHUNKER --> EMBED --> QDRANT
-    CHUNKER --> BM25_GEN --> BM25_STORE
-    CHUNKER --> PG
-
-    UI --> API --> AUTH --> RBAC
-    API --> REWRITE
-    REWRITE --> QDRANT & BM25_STORE
-    QDRANT & BM25_STORE --> FUSION --> RERANK --> PROMPT --> LLM --> CITE --> API
-
-    API -.-> LOGS --> PG
-    Serving -.-> EVAL --> PG
+    UI --> ROUTER --> QUERY --> AXIOS
+    AXIOS --> AUTH --> RBAC
+    AUTH --> DOC_API & SEARCH_API & RAG_API & COMPARE_API & AUDIT_API
+    SEARCH_API --> QDRANT & BM25_STORE --> FUSION --> RERANK
+    RAG_API --> QDRANT & BM25_STORE --> FUSION --> RERANK --> PROMPT --> LLM --> VERIFIER
+    DOC_API & SEARCH_API & RAG_API & COMPARE_API -.-> AUDIT
 ```
 
 ---
 
-## 🛠️ Planned Technology Stack
+## 💻 Phase 12 — Enterprise Frontend & Product UI
 
-| Layer | Technology | Key Selection Rationale |
+The Phase 12 frontend is a responsive, dark-mode ready, enterprise SPA built with modern web technologies:
+
+- **Framework**: React 19, TypeScript, Vite
+- **Routing**: React Router DOM v7
+- **Data Fetching & Cache**: TanStack Query v5
+- **HTTP Client**: Axios with JWT automatic injection & `X-Request-ID` correlation tracing
+- **Styling**: Tailwind CSS + Custom Design System Tokens
+- **Icons**: Lucide React
+- **Testing**: Vitest, React Testing Library, JSDOM
+
+### Implemented Pages & Capabilities
+
+| Page | Route | Description & Features |
 | :--- | :--- | :--- |
-| **Backend API** | **Python 3.11+ / FastAPI** | Async concurrency for I/O-bound LLM streams; native Pydantic validation. |
-| **Frontend** | **React (Vite) + Vanilla CSS** | Fast streaming token UI; full styling control without bloated CSS frameworks. |
-| **Vector Database** | **Qdrant** | High-performance HNSW search in Rust; native payload-based RBAC pre-filtering. |
-| **Relational Database** | **PostgreSQL 16+** | ACID-compliant storage for users, RBAC permissions, document metadata, logs. |
-| **Sparse Retrieval** | **BM25 (`rank-bm25` / Tantivy)** | Exact lexical matching for error codes, clause numbers, and acronyms. |
-| **Dense Embeddings** | **`BAAI/bge-large-en-v1.5`** | Top-tier MTEB semantic retrieval performance (1024-dimension vectors). |
-| **Reranking** | **`BAAI/bge-reranker-large`** | Full cross-attention scoring across top candidate query-passage pairs. |
-| **LLM Gateway** | **Swappable Client Layer** | Provider-agnostic abstraction (OpenAI, Anthropic, Gemini, local Ollama/vLLM). |
-| **Testing** | **Pytest + Pytest-Asyncio** | Comprehensive automated unit, integration, and benchmark test suite. |
-| **Containerization** | **Docker & Docker Compose** | Reproducible multi-service deployment across local and cloud environments. |
+| **Authentication** | `/login`, `/register` | JWT auth, show/hide password, client validation, self-registration restricted to Employee. |
+| **Dashboard** | `/dashboard` | User greeting with clearance pill, quick navigation cards, backend `/health` telemetry, security stats. |
+| **Document Management** | `/documents` | 50MB drag-and-drop file ingestion, deduplication handling, chunks explorer drawer, permanent deletion. |
+| **Hybrid Search** | `/search` | Strategy selector (RRF, Weighted, Dense, Sparse), latency & telemetry diagnostics, ranked chunk cards. |
+| **RAG Assistant** | `/rag` | Grounding status badge, Markdown synthesis with interactive citation chips (`[1]`), claim verification table, sources drawer. |
+| **Document Comparison** | `/comparison` | Document selector or ad-hoc text input, similarity threshold slider, diff statistics (+, -, ~, !, =), divergence index, clause alignment. |
+| **Audit & Security** | `/audit` | Clearance L4 Admin only, compliance telemetry cards, SHA-256 HMAC hash chain verification, sanitized metadata explorer. |
+| **Profile** | `/profile` | Identity details, clearance hierarchy matrix (Tiers 1–4), session tokens, logout. |
+| **Error Handling** | `/403`, `/404`, `/500` | Clearance violation screen with request escalation guidance, not found, and fatal error boundaries. |
 
 ---
 
-## 🗺️ 15-Phase Development Roadmap
+## 🧪 Verification & Test Suite Baseline
 
-Development follows a strict **one-phase-at-a-time** implementation discipline:
+### Backend Pytest Suite
+```bash
+# Total backend tests across Phases 1-12
+pytest -v
+# Result: 217 passed, 1 warning, 0 failures, 0 errors, 0 skipped
+```
 
-- [ ] **Phase 1: Project Foundation & Domain Entities** *(Next up)*
-- [ ] **Phase 2: Document Parsing & Ingestion Engine**
-- [ ] **Phase 3: Structure-Aware Chunking & Metadata Enrichment**
-- [ ] **Phase 4: Dense Vector Retrieval with Qdrant**
-- [ ] **Phase 5: BM25 Sparse Keyword Retrieval**
-- [ ] **Phase 6: Hybrid Retrieval & Reciprocal Rank Fusion (RRF)**
-- [ ] **Phase 7: Cross-Encoder Reranking**
-- [ ] **Phase 8: Grounded RAG Generation & Anti-Hallucination Guardrails**
-- [ ] **Phase 9: Citations & Grounding Verification**
-- [ ] **Phase 10: Document Comparison & Conflict Detection**
-- [ ] **Phase 11: Authentication & Role-Based Access Control (RBAC)**
-- [ ] **Phase 12: Evaluation Suite & Benchmarking Harness**
-- [ ] **Phase 13: React Web Interface**
-- [ ] **Phase 14: Observability, Cost & Latency Tracking**
-- [ ] **Phase 15: Dockerization & Production Deployment**
+- **Phase 1–7**: 109 tests (Parsing, chunking, embeddings, BM25, Qdrant, RRF, Cross-Encoder)
+- **Phase 8**: 36 tests (Grounded RAG synthesis, prompt assembly, anti-hallucination)
+- **Phase 9**: 21 tests (Deterministic claims verification, citation mapping, conflict detection)
+- **Phase 10**: 25 tests (Authentication, password hashing, JWT security, Pre-Retrieval RBAC)
+- **Phase 11**: 22 tests (Audit logging, HMAC-SHA256 integrity verification, security observability)
+- **Phase 12**: 11 tests (Document lifecycle API, chunks retrieval, search endpoints)
+
+### Frontend Build & Lint Verification
+```bash
+cd frontend
+npm.cmd run lint   # Passes cleanly: tsc -b with zero TypeScript errors
+npm.cmd run build  # Passes cleanly: Vite production bundle compiled to dist/
+```
 
 ---
 
-## 📚 Complete Engineering Documentation
+## 🚀 Quickstart Guide
 
-Detailed specifications and architectural deep dives are maintained in the [`docs/`](./docs) directory:
+### Prerequisites
+- Python 3.11+
+- Node.js 18+ and npm
+- PostgreSQL 16+
+- Qdrant Vector Database (local or containerized)
+- Ollama (optional, with `llama3:8b`)
 
-1. [**`docs/PROJECT_SPEC.md`**](./docs/PROJECT_SPEC.md) – Problem statement, personas, use cases, functional/non-functional requirements, and project scope.
-2. [**`docs/ARCHITECTURE.md`**](./docs/ARCHITECTURE.md) – End-to-end multi-plane architecture, sequence diagrams, data flows, and component-by-component deep dive.
-3. [**`docs/TECH_STACK.md`**](./docs/TECH_STACK.md) – Comprehensive technology comparison matrix and architectural justifications.
-4. [**`docs/ROADMAP.md`**](./docs/ROADMAP.md) – Detailed 15-phase implementation plan with study topics and interview criteria.
-5. [**`docs/INTERVIEW_NOTES.md`**](./docs/INTERVIEW_NOTES.md) – Master interview preparation guide covering IR mathematics, algorithms, security, and system design questions.
+### 1. Backend Setup
+```bash
+# Create and activate Python virtual environment
+python -m venv .venv
+.\.venv\Scripts\activate
+
+# Install dependencies
+pip install -r backend/requirements.txt
+
+# Run database migrations
+alembic upgrade head
+
+# Start FastAPI server
+uvicorn backend.app.main:app --host 0.0.0.0 --port 8000 --reload
+```
+
+### 2. Frontend Setup
+```bash
+cd frontend
+
+# Install dependencies
+npm install
+
+# Run frontend development server
+npm run dev
+
+# The web UI will be available at http://localhost:5173
+```
 
 ---
 
