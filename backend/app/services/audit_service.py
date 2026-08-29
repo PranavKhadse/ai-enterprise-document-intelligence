@@ -235,10 +235,25 @@ class AuditService:
     async def _get_latest_event_hash(self, db: AsyncSession) -> Optional[str]:
         """Retrieves the hash of the most recent audit event for chaining."""
         try:
-            stmt = select(AuditEvent.event_hash).order_by(AuditEvent.created_at.desc(), AuditEvent.id.desc()).limit(1)
-            res = await db.execute(stmt)
-            return res.scalar_one_or_none()
-        except Exception:
+            if db.in_transaction():
+                async with db.begin_nested():
+                    stmt = (
+                        select(AuditEvent.event_hash)
+                        .order_by(AuditEvent.created_at.desc(), AuditEvent.id.desc())
+                        .limit(1)
+                    )
+                    res = await db.execute(stmt)
+                    return res.scalar_one_or_none()
+            else:
+                stmt = (
+                    select(AuditEvent.event_hash)
+                    .order_by(AuditEvent.created_at.desc(), AuditEvent.id.desc())
+                    .limit(1)
+                )
+                res = await db.execute(stmt)
+                return res.scalar_one_or_none()
+        except Exception as err:
+            logger.debug("Could not retrieve latest audit event hash: %s", err)
             return None
 
     async def record_event(
@@ -351,10 +366,26 @@ class AuditService:
 
         try:
             if db is not None:
-                return await _persist(db)
+                try:
+                    return await _persist(db)
+                except Exception as db_err:
+                    try:
+                        await db.rollback()
+                    except Exception:
+                        pass
+                    logger.error("Audit persistence error on session: %s", db_err, exc_info=False)
+                    return None
             else:
                 async with AsyncSessionLocal() as session:
-                    return await _persist(session)
+                    try:
+                        return await _persist(session)
+                    except Exception as sess_err:
+                        try:
+                            await session.rollback()
+                        except Exception:
+                            pass
+                        logger.error("Audit persistence error on standalone session: %s", sess_err, exc_info=False)
+                        return None
         except Exception as err:
             logger.error("Audit persistence error: %s", err, exc_info=False)
             return None

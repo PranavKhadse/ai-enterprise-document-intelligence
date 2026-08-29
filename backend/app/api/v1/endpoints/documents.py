@@ -147,7 +147,7 @@ async def upload_document(
         from backend.app.services.dual_indexer import dual_indexing_service
         parsed_doc = await parser_service.parse_and_update_document(new_doc.id, db)
         if parsed_doc:
-            await chunker_service.chunk_and_store_document(new_doc.id, parsed_doc, db)
+            await chunker_service.chunk_and_persist(new_doc.id, parsed_doc, db=db)
             await dual_indexing_service.index_document(new_doc.id, db=db)
     except Exception:
         # Non-blocking: allows upload to succeed even if indexing is queued or mock test streams are used

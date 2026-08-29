@@ -195,3 +195,64 @@ async def test_dual_indexing_deterministic_recovery(isolated_dual_indexer):
         assert res2.sparse_indexed_count == 1
 
     await test_async_engine.dispose()
+
+
+@pytest.mark.asyncio
+async def test_dual_indexing_dense_failure_still_indexes_sparse(isolated_dual_indexer):
+    """
+    Verifies that when dense vector indexing fails (e.g. Qdrant offline),
+    BM25 sparse indexing still proceeds and indexes chunks.
+    """
+    test_async_engine = create_async_engine("sqlite+aiosqlite:///:memory:", echo=False)
+    test_async_session = async_sessionmaker(
+        bind=test_async_engine,
+        class_=AsyncSession,
+        expire_on_commit=False,
+    )
+
+    async with test_async_engine.begin() as conn:
+        await conn.run_sync(Base.metadata.create_all)
+
+    doc_id = uuid.uuid4()
+
+    async with test_async_session() as session:
+        doc = Document(
+            id=doc_id,
+            title="Dense Offline Test Doc",
+            file_path="/tmp/offline.pdf",
+            file_hash="hash_offline",
+            file_type="pdf",
+        )
+        session.add(doc)
+
+        c1 = DocumentChunk(
+            id=uuid.uuid4(),
+            document_id=doc_id,
+            chunk_index=0,
+            content="[Context: Offline Test] This chunk should be indexed in BM25 even if Qdrant fails.",
+            token_count=16,
+        )
+        session.add(c1)
+        await session.commit()
+
+        # Mock dense indexer to simulate Qdrant connection failure
+        isolated_dual_indexer.dense_indexer.index_document = MagicMock(
+            side_effect=Exception("Connection refused to Qdrant at localhost:6333")
+        )
+
+        result = await isolated_dual_indexer.index_document(document_id=doc_id, version_id=None, db=session)
+
+        # Dual indexing result reports dense failure
+        assert result.success is False
+        assert result.dense_indexed_count == 0
+        assert "Connection refused to Qdrant" in result.error
+
+        # But sparse BM25 indexing succeeded!
+        assert result.sparse_indexed_count == 1
+
+        # Verify BM25 search can retrieve the chunk
+        hits = isolated_dual_indexer.sparse_indexer.search("Qdrant")
+        assert len(hits) == 1
+        assert hits[0].chunk_id == c1.id
+
+    await test_async_engine.dispose()

@@ -56,3 +56,4 @@ Thumbs.db
 data/
 qdrant_storage/
 uploads/
+frontend/node_modules/

@@ -99,47 +99,44 @@ class DualIndexingService:
                 )
 
             # 3. Dense Vector Indexing (Qdrant)
-            dense_res = await self.dense_indexer.index_document(
-                document_id=document_id,
-                version_id=version_id,
-                db=db,
-            )
-
-            if not dense_res.success:
-                return DualIndexingResult(
-                    success=False,
+            dense_indexed_count = 0
+            dense_error: Optional[str] = None
+            try:
+                dense_res = await self.dense_indexer.index_document(
                     document_id=document_id,
                     version_id=version_id,
-                    dense_indexed_count=0,
-                    sparse_indexed_count=0,
-                    vector_dimension=dense_res.vector_dimension,
-                    error=f"Dense indexing failed: {dense_res.error}",
+                    db=db,
                 )
+                if dense_res.success:
+                    dense_indexed_count = dense_res.indexed_count
+                else:
+                    dense_error = f"Dense indexing failed: {dense_res.error}"
+            except Exception as de:
+                dense_error = f"Dense indexing failed: {str(de)}"
 
             # 4. Sparse Lexical Indexing (BM25 with operation-level persistence)
+            sparse_indexed_count = 0
+            sparse_error: Optional[str] = None
             try:
-                sparse_count = self.sparse_indexer.index_chunks(
+                sparse_indexed_count = self.sparse_indexer.index_chunks(
                     chunks=chunks,
                     document=document,
                 )
-            except Exception as e:
-                return DualIndexingResult(
-                    success=False,
-                    document_id=document_id,
-                    version_id=version_id,
-                    dense_indexed_count=dense_res.indexed_count,
-                    sparse_indexed_count=0,
-                    vector_dimension=dense_res.vector_dimension,
-                    error=f"Sparse lexical indexing failed: {str(e)}",
-                )
+            except Exception as se:
+                sparse_error = f"Sparse lexical indexing failed: {str(se)}"
+
+            errors = [e for e in [dense_error, sparse_error] if e]
+            combined_error = "; ".join(errors) if errors else None
+            is_success = (dense_error is None and sparse_error is None)
 
             return DualIndexingResult(
-                success=True,
+                success=is_success,
                 document_id=document_id,
                 version_id=version_id,
-                dense_indexed_count=dense_res.indexed_count,
-                sparse_indexed_count=sparse_count,
-                vector_dimension=dense_res.vector_dimension,
+                dense_indexed_count=dense_indexed_count,
+                sparse_indexed_count=sparse_indexed_count,
+                vector_dimension=settings.EMBEDDING_DIMENSION,
+                error=combined_error,
             )
 
         except Exception as e:
