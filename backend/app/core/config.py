@@ -1,6 +1,6 @@
 from pathlib import Path
-from typing import List, Optional, Union
-from pydantic import AnyHttpUrl, field_validator
+from typing import Any, List, Optional, Set, Union
+from pydantic import AnyHttpUrl, PrivateAttr, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 BACKEND_DIR = Path(__file__).resolve().parent.parent.parent
@@ -142,8 +142,28 @@ class Settings(BaseSettings):
     POSTGRES_DB: str = "enterprise_doc_intelligence"
     DATABASE_URL: Optional[str] = None
 
+    _explicit_init_args: Set[str] = PrivateAttr(default_factory=set)
+
+    def __init__(self, **values: Any):
+        super().__init__(**values)
+        self._explicit_init_args = set(values.keys())
+
     @property
     def async_database_url(self) -> str:
+        postgres_fields = {
+            "POSTGRES_SERVER",
+            "POSTGRES_PORT",
+            "POSTGRES_USER",
+            "POSTGRES_PASSWORD",
+            "POSTGRES_DB",
+        }
+        if ("DATABASE_URL" not in self._explicit_init_args) and (
+            self._explicit_init_args & postgres_fields
+        ):
+            return (
+                f"postgresql+asyncpg://{self.POSTGRES_USER}:{self.POSTGRES_PASSWORD}"
+                f"@{self.POSTGRES_SERVER}:{self.POSTGRES_PORT}/{self.POSTGRES_DB}"
+            )
         if self.DATABASE_URL:
             return self.DATABASE_URL
         return (
