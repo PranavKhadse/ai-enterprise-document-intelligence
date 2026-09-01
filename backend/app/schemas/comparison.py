@@ -68,6 +68,7 @@ class AlignedClause(BaseModel):
     entity_diffs: List[EntityDiffItem] = Field(default_factory=list, description="Extracted entity/metric differences")
     heading_similarity: Optional[float] = Field(default=None, ge=0.0, le=1.0, description="Heading match score")
     lexical_similarity: Optional[float] = Field(default=None, ge=0.0, le=1.0, description="Lexical Jaccard score")
+    semantic_similarity: Optional[float] = Field(default=None, ge=0.0, le=1.0, description="Semantic embedding similarity score")
     alignment_method: Optional[str] = Field(default=None, description="structural, semantic, or unmatched")
     conflict_verified: bool = Field(default=False, description="True if verified deterministically by Python")
 

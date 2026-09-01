@@ -413,7 +413,7 @@ export const ComparisonPage: React.FC = () => {
             activeTab={diffFilter}
             onChange={setDiffFilter}
             tabs={[
-              { id: 'ALL', label: 'All Aligned', count: comparisonResult.aligned_clauses.length },
+              { id: 'ALL', label: 'All Results', count: comparisonResult.aligned_clauses.length },
               { id: 'CONFLICT', label: 'Conflicts', count: comparisonResult.statistics.conflicting_clauses_count },
               { id: 'MODIFIED', label: 'Modified', count: comparisonResult.statistics.modified_clauses_count },
               { id: 'ADDED', label: 'Added', count: comparisonResult.statistics.added_clauses_count },
@@ -436,7 +436,16 @@ export const ComparisonPage: React.FC = () => {
 
                   <div className="flex items-center space-x-3 text-slate-500 font-mono text-[11px]">
                     <span>Similarity: {formatPercentage(clause.similarity_score)}</span>
-                    {clause.alignment_method && <span>({clause.alignment_method})</span>}
+                    {clause.semantic_similarity != null && clause.semantic_similarity > 0 && (
+                      <span className="text-indigo-600 dark:text-indigo-400">
+                        (Semantic: {formatPercentage(clause.semantic_similarity)})
+                      </span>
+                    )}
+                    {clause.alignment_method && (
+                      <span className="px-1.5 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 uppercase text-[10px]">
+                        {clause.alignment_method}
+                      </span>
+                    )}
                   </div>
                 </div>
 
@@ -483,17 +492,27 @@ export const ComparisonPage: React.FC = () => {
                 {clause.entity_diffs && clause.entity_diffs.length > 0 && (
                   <div className="space-y-2 pt-2">
                     <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400">
-                      Entity & Metric Divergences
+                      Entity & Metric Analysis
                     </span>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                       {clause.entity_diffs.map((diff, edIdx) => (
                         <div
                           key={edIdx}
-                          className="p-2.5 rounded-lg bg-amber-50/50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-900/60 text-xs space-y-1"
+                          className={`p-2.5 rounded-lg border text-xs space-y-1 ${
+                            diff.is_divergent
+                              ? 'bg-rose-50/60 dark:bg-rose-950/40 border-rose-200 dark:border-rose-900/60'
+                              : 'bg-slate-50 dark:bg-slate-900/60 border-slate-200 dark:border-slate-800'
+                          }`}
                         >
-                          <div className="flex justify-between font-mono text-[11px] text-amber-800 dark:text-amber-300">
-                            <span className="uppercase">{diff.entity_type}</span>
-                            {diff.is_divergent && <span className="font-bold">DIVERGENT</span>}
+                          <div className="flex justify-between font-mono text-[11px]">
+                            <span className="uppercase text-slate-600 dark:text-slate-400">{diff.entity_type}</span>
+                            {diff.is_divergent ? (
+                              <span className="font-bold text-rose-700 dark:text-rose-400">CONFLICTING</span>
+                            ) : (
+                              <span className="text-slate-400">
+                                {diff.value_a && diff.value_b ? 'MATCHED' : diff.value_b ? 'SPECIFIED IN B' : 'SPECIFIED IN A'}
+                              </span>
+                            )}
                           </div>
                           <div className="flex justify-between text-slate-700 dark:text-slate-300 text-[11px]">
                             <span>A: {diff.value_a || '—'}</span>

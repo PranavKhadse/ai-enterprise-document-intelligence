@@ -160,7 +160,8 @@ class EntityDiffEngine:
                 raw_a, norm_a = items_a[i] if i < len(items_a) else (None, None)
                 raw_b, norm_b = items_b[i] if i < len(items_b) else (None, None)
 
-                is_divergent = (norm_a != norm_b) or (norm_a is None) or (norm_b is None)
+                # Divergence occurs only when BOTH sides define the entity and the values contradict
+                is_divergent = bool(norm_a is not None and norm_b is not None and norm_a != norm_b)
 
                 diff_items.append(
                     EntityDiffItem(

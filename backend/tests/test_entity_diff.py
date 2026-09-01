@@ -73,3 +73,24 @@ def test_entity_diff_percentages_and_dates():
 
     assert len(date_diffs) == 1
     assert date_diffs[0].is_divergent is True
+
+
+def test_entity_diff_missing_concept_not_divergent():
+    """Verifies that an entity present in only one clause (e.g. 10 minutes lockout) is NOT flagged as divergent."""
+    text_a = "All corporate documents must be stored in encrypted repositories with multi-factor authentication enforced."
+    text_b = "Passwords must be at least 12 characters long. Accounts are locked after 5 failed login attempts within 10 minutes."
+
+    diffs = entity_diff_engine.compute_entity_diffs(text_a, text_b)
+
+    # Durations: only present in text_b (10 minutes) -> value_a is None -> is_divergent MUST be False
+    duration_diffs = [d for d in diffs if d.entity_type == EntityType.DURATION.value]
+    assert len(duration_diffs) == 1
+    assert duration_diffs[0].value_a is None
+    assert duration_diffs[0].value_b == "10 minutes"
+    assert duration_diffs[0].is_divergent is False
+
+    # Numbers: only present in text_b (12, 5) -> value_a is None -> is_divergent MUST be False
+    number_diffs = [d for d in diffs if d.entity_type == EntityType.NUMBER.value]
+    for nd in number_diffs:
+        if nd.value_a is None or nd.value_b is None:
+            assert nd.is_divergent is False

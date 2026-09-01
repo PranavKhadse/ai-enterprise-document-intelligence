@@ -91,3 +91,79 @@ Lunch is served from 12:00 to 14:00 daily.
     added = [al for al in alignments if al.clause_a is None and al.clause_b]
     assert len(removed) == 1
     assert len(added) == 1
+
+
+def test_clause_aligner_semantic_similarity_different_wording():
+    """Verifies that semantically related clauses with different wording align correctly."""
+    doc_a = """
+Section 1: Access Control
+All corporate documents must be stored in encrypted repositories with multi-factor authentication enforced.
+"""
+    doc_b = """
+Section 3: Authentication & Password Rules
+Passwords must be at least 12 characters long. Multi-factor authentication is required for administrators and access to Restricted information.
+"""
+    clauses_a = clause_extractor.extract_from_markdown(doc_a, doc_prefix="a")
+    clauses_b = clause_extractor.extract_from_markdown(doc_b, doc_prefix="b")
+
+    alignments = clause_aligner.align_clauses(clauses_a, clauses_b)
+
+    matched = [al for al in alignments if al.clause_a and al.clause_b]
+    assert len(matched) == 1
+    assert matched[0].semantic_similarity >= 0.60
+    assert matched[0].alignment_method == "semantic"
+
+
+def test_clause_aligner_polarity_conflict_alignment():
+    """Verifies that polarity reversed statements align as candidate pairs."""
+    doc_a = "# 1. Authentication\nMulti-factor authentication is mandatory for all production systems."
+    doc_b = "# 1. Authentication\nMulti-factor authentication is optional and discretionary for all production systems."
+
+    clauses_a = clause_extractor.extract_from_markdown(doc_a, doc_prefix="a")
+    clauses_b = clause_extractor.extract_from_markdown(doc_b, doc_prefix="b")
+
+    alignments = clause_aligner.align_clauses(clauses_a, clauses_b)
+
+    matched = [al for al in alignments if al.clause_a and al.clause_b]
+    assert len(matched) == 1
+    assert matched[0].similarity_score >= 0.70
+
+
+def test_clause_aligner_numeric_duration_conflict_alignment():
+    """Verifies that clauses differing in numeric duration align as candidate pairs."""
+    doc_a = "# 1. Retention Policy\nSnapshot backups are retained for 30 days."
+    doc_b = "# 1. Retention Policy\nSnapshot backups are retained for 90 days."
+
+    clauses_a = clause_extractor.extract_from_markdown(doc_a, doc_prefix="a")
+    clauses_b = clause_extractor.extract_from_markdown(doc_b, doc_prefix="b")
+
+    alignments = clause_aligner.align_clauses(clauses_a, clauses_b)
+
+    matched = [al for al in alignments if al.clause_a and al.clause_b]
+    assert len(matched) == 1
+    assert matched[0].similarity_score >= 0.85
+
+
+def test_clause_aligner_one_to_one_constraint():
+    """Verifies that a single target clause is not matched multiple times."""
+    doc_a = """
+# 1. Security
+Multi-factor authentication is mandatory.
+
+# 2. Security Auth
+MFA is required for all logins.
+"""
+    doc_b = """
+# 1. Security
+Multi-factor authentication is mandatory.
+"""
+    clauses_a = clause_extractor.extract_from_markdown(doc_a, doc_prefix="a")
+    clauses_b = clause_extractor.extract_from_markdown(doc_b, doc_prefix="b")
+
+    alignments = clause_aligner.align_clauses(clauses_a, clauses_b)
+
+    matched = [al for al in alignments if al.clause_a and al.clause_b]
+    assert len(matched) == 1  # Only 1 pair matched
+    removed = [al for al in alignments if al.clause_a and al.clause_b is None]
+    assert len(removed) == 1  # Extra clause in A is marked removed
+

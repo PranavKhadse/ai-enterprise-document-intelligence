@@ -13,6 +13,26 @@ HEADING_NUMBERING_PATTERN = re.compile(
     re.IGNORECASE,
 )
 
+# Context breadcrumb pattern e.g. "[Context: DocTitle > Section 1 > Subsection]"
+CONTEXT_BREADCRUMB_PATTERN = re.compile(r"^\[Context:\s*(.*?)\]$", re.IGNORECASE)
+
+# Plain-text section heading pattern e.g. "Section 1: Access Control", "1. Information Security Principles"
+PLAIN_HEADING_PATTERN = re.compile(
+    r"^(?:(?:Section|Chapter|Article|Clause|Part|Policy)\s+\d+(?:\.\d+)*\s*[:\.\-–]?\s*.+|\d+(?:\.\d+)+\s+[A-Z].+|\d+\.\s+[A-Z][A-Za-z0-9\s&/\-_,\'\"]{2,80})$",
+    re.IGNORECASE,
+)
+
+# Document-level administrative metadata pattern e.g. "Policy owner: ...", "Version 2.1", "Review cycle: ..."
+METADATA_LINE_PATTERN = re.compile(
+    r"(?:"
+    r"^(?:Policy\s+Owner|Document\s+Owner|Author|Review\s+Cycle|Current\s+Version|Effective\s+Date|Status|Classification|Doc\s+ID|Document\s+ID)\s*[:\-–]|"
+    r"\b(?:Version\s+\d+(?:\.\d+)*|Effective\s+\d{1,2}\s+[A-Za-z]+\s+\d{4})\b.*(?:Version|Effective|Status|Date)|"
+    r"\b(?:Review\s+cycle|Current\s+version)\b.*(?:\d+|months|years)|"
+    r"^(?:This\s+(?:fictional\s+)?policy\s+is\s+designed|This\s+document\s+is\s+intended|This\s+policy\s+applies\s+to\s+all\s+testing)\b"
+    r")",
+    re.IGNORECASE,
+)
+
 # Negation and polarity terms that MUST be preserved during comparison
 POLARITY_TERMS = {
     "mandatory", "required", "prohibited", "forbidden", "optional", "discretionary",
@@ -32,6 +52,7 @@ class ExtractedClause(BaseModel):
     normalized_heading: str = Field(description="Normalized section path for structural matching")
     page_number: Optional[int] = Field(default=None, description="Page number if available")
     is_table: bool = Field(default=False, description="True if clause is a Markdown table")
+    is_metadata: bool = Field(default=False, description="True if clause represents administrative/document metadata")
     clause_index: int = Field(default=0, ge=0, description="Sequential index in document")
 
 
@@ -73,6 +94,44 @@ class ClauseExtractorService:
         norm = re.sub(r"[\*_]{1,3}", "", norm)
         return norm
 
+    @staticmethod
+    def is_document_metadata(text: str) -> bool:
+        """Detects if a line or block represents document-level administrative metadata rather than a policy clause."""
+        if not text:
+            return False
+        return bool(METADATA_LINE_PATTERN.search(text))
+
+    @staticmethod
+    def _is_plain_heading(line: str) -> bool:
+        """
+        Detects if a plain text line represents a section heading rather than a body clause sentence.
+        """
+        if not line or len(line) > 100:
+            return False
+        # Full sentences ending in period with > 6 words are body clauses, not headings
+        words = line.split()
+        if line.endswith(".") and len(words) > 6:
+            return False
+        return bool(PLAIN_HEADING_PATTERN.match(line))
+
+    @staticmethod
+    def _is_title_candidate(line: str, heading_stack: List[str], saw_section_heading: bool) -> bool:
+        """Detects standalone document title before section headings."""
+        if saw_section_heading:
+            return False
+        if not line or len(line) > 80:
+            return False
+        if line.endswith(".") or line.endswith(":") or line.endswith(";"):
+            return False
+        words = line.split()
+        if len(words) > 8:
+            return False
+        # If it has policy modality verbs, it's a clause, not a title
+        lower = line.lower()
+        if any(v in lower for v in [" must ", " shall ", " cannot ", " is required ", " are required "]):
+            return False
+        return True
+
     def extract_from_markdown(
         self,
         text: str,
@@ -93,6 +152,7 @@ class ClauseExtractorService:
         in_table = False
         table_lines: List[str] = []
         clause_counter = 0
+        saw_section_heading = False
 
         def get_current_section_path() -> str:
             return " > ".join(current_heading_stack) if current_heading_stack else "General"
@@ -105,6 +165,7 @@ class ClauseExtractorService:
             if block_text:
                 clause_counter += 1
                 sec_path = get_current_section_path()
+                is_meta = self.is_document_metadata(block_text)
                 clauses.append(
                     ExtractedClause(
                         clause_id=f"{doc_prefix}_clause_{clause_counter}",
@@ -114,6 +175,7 @@ class ClauseExtractorService:
                         normalized_heading=self.normalize_heading(sec_path),
                         page_number=default_page,
                         is_table=False,
+                        is_metadata=is_meta,
                         clause_index=clause_counter,
                     )
                 )
@@ -137,6 +199,7 @@ class ClauseExtractorService:
                         normalized_heading=self.normalize_heading(sec_path),
                         page_number=default_page,
                         is_table=True,
+                        is_metadata=False,
                         clause_index=clause_counter,
                     )
                 )
@@ -146,7 +209,23 @@ class ClauseExtractorService:
         for line in lines:
             stripped = line.strip()
 
-            # Heading Detection (# Heading, ## Subheading, ### Sub-subheading)
+            # 1. Context Breadcrumb Detection (e.g. [Context: DocTitle > Section 1 > Subsection])
+            context_match = CONTEXT_BREADCRUMB_PATTERN.match(stripped)
+            if context_match:
+                if in_table:
+                    flush_table()
+                else:
+                    flush_current_block()
+
+                raw_breadcrumb = context_match.group(1).strip()
+                if raw_breadcrumb:
+                    parts = [p.strip() for p in raw_breadcrumb.split(">") if p.strip()]
+                    current_heading_stack = parts
+                    if len(parts) > 1:
+                        saw_section_heading = True
+                continue
+
+            # 2. Markdown Heading Detection (# Heading, ## Subheading, ### Sub-subheading)
             heading_match = re.match(r"^(#{1,6})\s+(.*)$", stripped)
             if heading_match:
                 if in_table:
@@ -154,6 +233,7 @@ class ClauseExtractorService:
                 else:
                     flush_current_block()
 
+                saw_section_heading = True
                 level = len(heading_match.group(1))
                 heading_title = heading_match.group(2).strip()
 
@@ -163,7 +243,30 @@ class ClauseExtractorService:
                 current_heading_stack.append(heading_title)
                 continue
 
-            # Table Row Detection (| Col 1 | Col 2 |)
+            # 3. Plain-text Section Heading Detection (e.g. "Section 1: Access Control", "3. Authentication & Password Rules")
+            if self._is_plain_heading(stripped):
+                if in_table:
+                    flush_table()
+                else:
+                    flush_current_block()
+
+                saw_section_heading = True
+                if len(current_heading_stack) > 1:
+                    current_heading_stack = current_heading_stack[:1] + [stripped]
+                else:
+                    current_heading_stack = [stripped]
+                continue
+
+            # 4. Top-of-Document Title Candidate (e.g. "Enterprise Security Policy 2026")
+            if not saw_section_heading and self._is_title_candidate(stripped, current_heading_stack, saw_section_heading):
+                if in_table:
+                    flush_table()
+                else:
+                    flush_current_block()
+                current_heading_stack = [stripped]
+                continue
+
+            # 5. Table Row Detection (| Col 1 | Col 2 |)
             if stripped.startswith("|") and stripped.endswith("|"):
                 if not in_table:
                     flush_current_block()
@@ -174,7 +277,7 @@ class ClauseExtractorService:
                 # Table ended
                 flush_table()
 
-            # Blank line separates paragraphs/clauses
+            # 6. Blank line separates paragraphs/clauses
             if not stripped:
                 flush_current_block()
                 continue

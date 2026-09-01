@@ -12,6 +12,7 @@ from pydantic import BaseModel, Field
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from backend.app.db.models.document import Document
+from backend.app.db.models.document_chunk import DocumentChunk
 from backend.app.schemas.comparison import (
     AlignedClause,
     ComparisonDiagnostics,
@@ -31,6 +32,7 @@ from backend.app.services.llm_provider import (
     get_llm_provider,
     llm_provider as default_llm_provider,
 )
+from backend.app.services.parser import parser_service
 
 
 class LLMDiffProposal(BaseModel):
@@ -185,6 +187,68 @@ class DocumentComparatorService:
             else:
                 return "Wording or structural revision between document versions.", False, None
 
+    async def _load_document_text(
+        self,
+        document_id: uuid.UUID,
+        db: AsyncSession,
+        warnings: List[str],
+        doc_label: str = "Doc",
+    ) -> Tuple[str, str]:
+        """
+        Loads document title and human-readable text by:
+        1. Querying Document record.
+        2. Querying DocumentChunk records by document_id ordered by chunk_index.
+        3. If chunks exist, reconstructing full text from chunks.
+        4. If no chunks exist and file_path is a PDF, parsing human-readable elements using PDFParserService.
+        5. If non-PDF (e.g. text/markdown), reading the file content safely.
+        """
+        doc_record = await db.get(Document, document_id)
+        if not doc_record:
+            warnings.append(f"Document record with ID {document_id} not found in database.")
+            return "", f"{doc_label}"
+
+        title = doc_record.title or f"{doc_label}"
+
+        # 1. Explicitly query DocumentChunk records ordered by chunk_index
+        stmt = (
+            select(DocumentChunk)
+            .where(DocumentChunk.document_id == document_id)
+            .order_by(DocumentChunk.chunk_index.asc())
+        )
+        result = await db.execute(stmt)
+        chunks = result.scalars().all()
+
+        if chunks:
+            text = "\n\n".join(c.content for c in chunks if c.content)
+            return text, title
+
+        # 2. If no chunks exist, fallback to file extraction
+        if doc_record.file_path:
+            file_path_str = str(doc_record.file_path)
+            is_pdf = (
+                (doc_record.file_type and doc_record.file_type.lower() == "pdf")
+                or file_path_str.lower().endswith(".pdf")
+            )
+            if is_pdf:
+                try:
+                    parsed_doc = parser_service.parse_file(file_path_str, document_title=title)
+                    if parsed_doc and parsed_doc.all_elements:
+                        text = "\n\n".join(el.content for el in parsed_doc.all_elements if el.content)
+                        return text, title
+                    else:
+                        warnings.append(f"PDF parser returned 0 readable elements for {doc_label}: {file_path_str}")
+                except Exception as pe:
+                    warnings.append(f"Failed to parse PDF file for {doc_label}: {pe}")
+            else:
+                try:
+                    with open(file_path_str, "r", encoding="utf-8", errors="ignore") as f:
+                        text = f.read()
+                    return text, title
+                except Exception as fe:
+                    warnings.append(f"Failed to read text file for {doc_label}: {fe}")
+
+        return "", title
+
     async def compare_documents(
         self,
         request: DocumentComparisonRequest,
@@ -203,31 +267,22 @@ class DocumentComparatorService:
         title_b = request.title_b or "Document B"
 
         if request.document_a_id and db:
-            doc_record_a = await db.get(Document, request.document_a_id)
-            if doc_record_a:
-                title_a = doc_record_a.title
-                # Reconstruct full text from chunks if available
-                if doc_record_a.chunks:
-                    text_a = "\n\n".join(c.content for c in doc_record_a.chunks)
-                elif doc_record_a.file_path:
-                    try:
-                        with open(doc_record_a.file_path, "r", encoding="utf-8", errors="ignore") as f:
-                            text_a = f.read()
-                    except Exception as fe:
-                        warnings.append(f"Failed to read file for Doc A: {fe}")
+            loaded_text_a, loaded_title_a = await self._load_document_text(
+                request.document_a_id, db, warnings, doc_label="Doc A"
+            )
+            if loaded_text_a:
+                text_a = loaded_text_a
+            if loaded_title_a and not request.title_a:
+                title_a = loaded_title_a
 
         if request.document_b_id and db:
-            doc_record_b = await db.get(Document, request.document_b_id)
-            if doc_record_b:
-                title_b = doc_record_b.title
-                if doc_record_b.chunks:
-                    text_b = "\n\n".join(c.content for c in doc_record_b.chunks)
-                elif doc_record_b.file_path:
-                    try:
-                        with open(doc_record_b.file_path, "r", encoding="utf-8", errors="ignore") as f:
-                            text_b = f.read()
-                    except Exception as fe:
-                        warnings.append(f"Failed to read file for Doc B: {fe}")
+            loaded_text_b, loaded_title_b = await self._load_document_text(
+                request.document_b_id, db, warnings, doc_label="Doc B"
+            )
+            if loaded_text_b:
+                text_b = loaded_text_b
+            if loaded_title_b and not request.title_b:
+                title_b = loaded_title_b
 
         # 2. Extract Clauses
         t_ext_start = time.perf_counter()
@@ -278,6 +333,7 @@ class DocumentComparatorService:
                     entity_diffs=[],
                     heading_similarity=0.0,
                     lexical_similarity=0.0,
+                    semantic_similarity=0.0,
                     alignment_method=cand.alignment_method,
                     conflict_verified=False,
                 )
@@ -302,6 +358,7 @@ class DocumentComparatorService:
                     entity_diffs=[],
                     heading_similarity=0.0,
                     lexical_similarity=0.0,
+                    semantic_similarity=0.0,
                     alignment_method=cand.alignment_method,
                     conflict_verified=False,
                 )
@@ -342,6 +399,7 @@ class DocumentComparatorService:
                     entity_diffs=entity_diffs,
                     heading_similarity=cand.heading_similarity,
                     lexical_similarity=cand.lexical_similarity,
+                    semantic_similarity=cand.semantic_similarity,
                     alignment_method=cand.alignment_method,
                     conflict_verified=False,
                 )
@@ -377,6 +435,7 @@ class DocumentComparatorService:
                 entity_diffs=entity_diffs,
                 heading_similarity=cand.heading_similarity,
                 lexical_similarity=cand.lexical_similarity,
+                semantic_similarity=cand.semantic_similarity,
                 alignment_method=cand.alignment_method,
                 conflict_verified=verified_conflict,
             )
