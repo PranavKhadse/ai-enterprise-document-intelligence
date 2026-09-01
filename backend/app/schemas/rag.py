@@ -78,8 +78,11 @@ class LLMClaimProposal(BaseModel):
     Internal schema for a claim proposed by the LLM.
     Status and provenance are not trusted and will be verified by Python code.
     """
-    claim_text: str = Field(..., description="Factual claim assertion")
-    citation_ids: List[int] = Field(default_factory=list, description="Proposed citation IDs")
+    claim_text: str = Field(..., description="Factual claim assertion text")
+    citation_ids: List[int] = Field(
+        default_factory=list,
+        description="Array of 1-based integer citation IDs (e.g. [1]) from the evidence supporting this claim. Must not be empty if derived from evidence.",
+    )
 
     model_config = ConfigDict(from_attributes=True)
 
@@ -89,9 +92,15 @@ class LLMAnswerProposal(BaseModel):
     Internal structured output proposal from the LLM provider.
     The LLM proposes; Python deterministic verification is the sole authority.
     """
-    answer: str = Field(..., description="Synthesized answer text with inline citation anchors [1], [2]")
-    claims: List[LLMClaimProposal] = Field(default_factory=list, description="List of proposed factual claims")
-    citation_ids: List[int] = Field(default_factory=list, description="List of all referenced citation IDs")
+    answer: str = Field(..., description="Synthesized answer text containing inline citation anchors [1], [2]")
+    claims: List[LLMClaimProposal] = Field(
+        default_factory=list,
+        description="List of proposed factual claims, each with its associated integer citation_ids",
+    )
+    citation_ids: List[int] = Field(
+        default_factory=list,
+        description="List of all unique integer citation IDs referenced in the answer (e.g. [1], [2])",
+    )
     insufficient_evidence: bool = Field(default=False, description="Whether LLM deemed evidence insufficient")
     conflicts_detected: bool = Field(default=False, description="Whether LLM detected contradictory policies/values")
     conflict_details: Optional[str] = Field(None, description="Details of conflicting evidence if observed")

@@ -140,3 +140,76 @@ def test_grounding_verifier_partially_grounded():
     assert len(claims) == 2
     assert claims[0].status == ClaimStatus.SUPPORTED
     assert claims[1].status == ClaimStatus.UNSUPPORTED
+
+
+def test_grounding_verifier_proposed_claims_citation_repair():
+    """Verifies that proposed claims with empty citation_ids are repaired from answer inline citations."""
+    context = create_context_fixtures()
+    answer = "Multi-factor authentication is mandatory for all production systems starting v2.1.0.[1]"
+    proposed = [
+        LLMClaimProposal(
+            claim_text="Multi-factor authentication is mandatory for all production systems starting v2.1.0.",
+            citation_ids=[],
+        )
+    ]
+
+    status, claims, warnings = grounding_verifier.verify_grounding(
+        answer_text=answer,
+        context_items=context,
+        proposed_claims=proposed,
+    )
+
+    assert status == GroundingStatus.FULLY_GROUNDED
+    assert len(claims) == 1
+    assert claims[0].citation_ids == [1]
+    assert claims[0].status == ClaimStatus.SUPPORTED
+
+
+def test_grounding_verifier_multiple_citations_grounded():
+    """Verifies fully grounded status when proposed claims cite multiple valid sources [1, 2]."""
+    context = create_context_fixtures()
+    answer = "MFA is mandatory starting v2.1.0 [1]. Database backups are retained for 30 days [2]."
+    proposed = [
+        LLMClaimProposal(
+            claim_text="MFA is mandatory starting v2.1.0",
+            citation_ids=[1],
+        ),
+        LLMClaimProposal(
+            claim_text="Database backups are retained for 30 days",
+            citation_ids=[2],
+        ),
+    ]
+
+    status, claims, warnings = grounding_verifier.verify_grounding(
+        answer_text=answer,
+        context_items=context,
+        proposed_claims=proposed,
+    )
+
+    assert status == GroundingStatus.FULLY_GROUNDED
+    assert len(claims) == 2
+    assert claims[0].status == ClaimStatus.SUPPORTED
+    assert claims[1].status == ClaimStatus.SUPPORTED
+
+
+def test_grounding_verifier_proposed_claim_fabricated_citation():
+    """Verifies that proposed claim citing non-existent citation [99] is marked unsupported."""
+    context = create_context_fixtures()
+    answer = "MFA is mandatory across all environments [99]."
+    proposed = [
+        LLMClaimProposal(
+            claim_text="MFA is mandatory across all environments",
+            citation_ids=[99],
+        )
+    ]
+
+    status, claims, warnings = grounding_verifier.verify_grounding(
+        answer_text=answer,
+        context_items=context,
+        proposed_claims=proposed,
+    )
+
+    assert status == GroundingStatus.UNSUPPORTED
+    assert len(claims) == 1
+    assert claims[0].status == ClaimStatus.UNSUPPORTED
+    assert "99" in claims[0].explanation

@@ -19,12 +19,12 @@ CRITICAL GROUNDING RULES:
 5. Entity & Numeric Precision: Preserve all numbers, dates, currency amounts, percentages, error codes, version numbers (e.g., v2.1.0), and enterprise identifiers (e.g., RFC-7519, Clause_4.2) exactly as written.
 6. Conflicting Evidence: If different evidence items contradict each other (e.g., different policies or version changes), explicitly state the discrepancy, set conflicts_detected=true, and cite both conflicting sources.
 7. Structured Format: Return a structured response containing:
-   - answer: The full response string with citations [1], [2]
-   - claims: Array of individual factual claim statements with their associated citation_ids
-   - citation_ids: Array of all unique citation integer IDs referenced
-   - insufficient_evidence: boolean flag
+   - answer: The full response string with inline citation markers like [1], [2]
+   - claims: Array of individual factual claim objects. Every claim object MUST include its supporting evidence citation integer IDs in "citation_ids" (e.g. "citation_ids": [1]).
+   - citation_ids: Array of all unique citation integer IDs referenced in the answer (e.g. [1])
+   - insufficient_evidence: boolean flag (true if evidence is inadequate, false otherwise)
    - conflicts_detected: boolean flag
-   - conflict_details: string summary of conflicts if present
+   - conflict_details: string summary of conflicts if present (null otherwise)
 """
 
 

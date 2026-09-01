@@ -273,18 +273,21 @@ class OpenAICompatibleLLMProvider(BaseLLMProvider):
         system_prompt: Optional[str] = None,
         temperature: float = 0.0,
         max_tokens: int = 1024,
+        response_format: Optional[Dict[str, Any]] = None,
     ) -> str:
         messages = []
         if system_prompt:
             messages.append({"role": "system", "content": system_prompt})
         messages.append({"role": "user", "content": prompt})
 
-        payload = {
+        payload: Dict[str, Any] = {
             "model": self.model_name,
             "messages": messages,
             "temperature": temperature,
             "max_tokens": max_tokens,
         }
+        if response_format:
+            payload["response_format"] = response_format
 
         url = f"{self.base_url}/chat/completions"
         try:
@@ -309,10 +312,15 @@ class OpenAICompatibleLLMProvider(BaseLLMProvider):
         temperature: float = 0.0,
         max_tokens: int = 1024,
     ) -> BaseModel:
+        schema_json = json.dumps(response_schema.model_json_schema(), indent=2)
         json_instruction = (
-            f"\n\nCRITICAL: Respond ONLY with a valid JSON object matching the following schema:\n"
-            f"{json.dumps(response_schema.model_json_schema(), indent=2)}\n"
-            f"Do NOT include markdown formatting like ```json or any commentary outside the JSON."
+            "\n\nCRITICAL INSTRUCTIONS FOR STRUCTURED JSON RESPONSE:\n"
+            "1. You MUST respond ONLY with a single valid JSON object instance matching the schema below.\n"
+            "2. Never output the JSON schema itself, markdown fences (like ```json), or explanatory commentary.\n"
+            "3. The 'answer' field MUST contain the complete synthesized answer with inline citation markers like [1], [2].\n"
+            "4. In the 'claims' array, extract each distinct factual statement asserted in your answer into a claim object with 'claim_text' containing the factual statement and 'citation_ids' containing the supporting evidence integer IDs (e.g. {\"claim_text\": \"All corporate documents must be stored in encrypted repositories with multi-factor authentication enforced.\", \"citation_ids\": [1]}). Never leave 'citation_ids' empty if the claim is derived from evidence.\n"
+            "5. The top-level 'citation_ids' array MUST contain all unique integer citation IDs referenced in the answer (e.g. [1]).\n\n"
+            f"Target JSON Schema Reference:\n{schema_json}"
         )
         augmented_prompt = prompt + json_instruction
 
@@ -321,9 +329,10 @@ class OpenAICompatibleLLMProvider(BaseLLMProvider):
             system_prompt=system_prompt,
             temperature=temperature,
             max_tokens=max_tokens,
+            response_format={"type": "json_object"},
         )
 
-        # Parse JSON from raw output
+        # Parse JSON from raw output with robust fence stripping and fallback extraction
         cleaned_json = raw_output.strip()
         if cleaned_json.startswith("```json"):
             cleaned_json = cleaned_json[7:]
@@ -333,12 +342,34 @@ class OpenAICompatibleLLMProvider(BaseLLMProvider):
             cleaned_json = cleaned_json[:-3]
         cleaned_json = cleaned_json.strip()
 
+        parsed_dict: Optional[Dict[str, Any]] = None
         try:
             parsed_dict = json.loads(cleaned_json)
+        except json.JSONDecodeError:
+            # Fallback: extract outermost JSON object between first '{' and last '}'
+            start = raw_output.find("{")
+            end = raw_output.rfind("}")
+            if start != -1 and end != -1 and end > start:
+                try:
+                    parsed_dict = json.loads(raw_output[start : end + 1])
+                except json.JSONDecodeError as json_err:
+                    logger.warning("Failed to parse extracted JSON block from LLM: %s", json_err)
+                    raise LLMMalformedOutputError(f"Invalid structured JSON response from LLM: {str(json_err)}")
+            else:
+                raise LLMMalformedOutputError(f"LLM produced unparseable non-JSON output: {raw_output[:200]}")
+
+        if not isinstance(parsed_dict, dict):
+            raise LLMMalformedOutputError(f"Expected JSON object from LLM, got {type(parsed_dict).__name__}")
+
+        # Guard against LLM regurgitating JSON schema definition instead of an actual instance
+        if "$defs" in parsed_dict or ("properties" in parsed_dict and "answer" not in parsed_dict):
+            raise LLMMalformedOutputError("LLM returned JSON schema definition instead of response instance.")
+
+        try:
             return response_schema.model_validate(parsed_dict)
-        except (json.JSONDecodeError, ValidationError) as err:
-            logger.warning("Failed to parse LLM structured output into schema: %s", err)
-            raise LLMMalformedOutputError(f"Invalid structured JSON response from LLM: {str(err)}")
+        except ValidationError as err:
+            logger.warning("Failed to validate parsed LLM dict against schema: %s", err)
+            raise LLMMalformedOutputError(f"LLM output failed schema validation: {str(err)}")
 
     async def health_check(self) -> bool:
         url = f"{self.base_url}/models"

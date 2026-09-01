@@ -113,3 +113,59 @@ def test_provider_factory():
     openai_p = get_llm_provider("openai", api_key="sk-test", base_url="http://localhost:8000/v1")
     assert isinstance(openai_p, OpenAICompatibleLLMProvider)
     assert openai_p.base_url == "http://localhost:8000/v1"
+
+
+@pytest.mark.asyncio
+async def test_openai_compatible_structured_parsing_fences(monkeypatch):
+    """Verifies that OpenAICompatibleLLMProvider handles markdown fences and extracts JSON."""
+    provider = OpenAICompatibleLLMProvider(base_url="http://mock-llm:8000/v1")
+
+    valid_json = (
+        '```json\n'
+        '{\n'
+        '  "answer": "MFA is required [1].",\n'
+        '  "claims": [{"claim_text": "MFA is required", "citation_ids": [1]}],\n'
+        '  "citation_ids": [1],\n'
+        '  "insufficient_evidence": false,\n'
+        '  "conflicts_detected": false,\n'
+        '  "conflict_details": null\n'
+        '}\n'
+        '```'
+    )
+
+    async def mock_generate(*args, **kwargs):
+        return valid_json
+
+    monkeypatch.setattr(provider, "generate", mock_generate)
+    res = await provider.generate_structured("prompt", LLMAnswerProposal)
+    assert isinstance(res, LLMAnswerProposal)
+    assert res.answer == "MFA is required [1]."
+    assert res.claims[0].citation_ids == [1]
+
+
+@pytest.mark.asyncio
+async def test_openai_compatible_structured_malformed_json(monkeypatch):
+    """Verifies that OpenAICompatibleLLMProvider raises LLMMalformedOutputError on bad JSON."""
+    provider = OpenAICompatibleLLMProvider(base_url="http://mock-llm:8000/v1")
+
+    async def mock_generate(*args, **kwargs):
+        return "Sorry, I cannot provide JSON: {unclosed"
+
+    monkeypatch.setattr(provider, "generate", mock_generate)
+    with pytest.raises(LLMMalformedOutputError):
+        await provider.generate_structured("prompt", LLMAnswerProposal)
+
+
+@pytest.mark.asyncio
+async def test_openai_compatible_structured_schema_rejection(monkeypatch):
+    """Verifies that OpenAICompatibleLLMProvider rejects raw JSON schema regurgitation."""
+    provider = OpenAICompatibleLLMProvider(base_url="http://mock-llm:8000/v1")
+
+    schema_regurgitated = '{"$defs": {"LLMClaimProposal": {}}, "properties": {"answer": {"type": "string"}}}'
+
+    async def mock_generate(*args, **kwargs):
+        return schema_regurgitated
+
+    monkeypatch.setattr(provider, "generate", mock_generate)
+    with pytest.raises(LLMMalformedOutputError):
+        await provider.generate_structured("prompt", LLMAnswerProposal)

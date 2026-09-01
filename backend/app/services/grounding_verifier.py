@@ -57,7 +57,8 @@ class GroundingVerifierService:
     ) -> List[Tuple[str, List[int]]]:
         """
         Extracts factual claim assertions and their associated inline citation IDs.
-        Uses proposed claims if provided, or splits sentences/bullets deterministically.
+        Uses proposed claims if provided (repairing missing citation_ids deterministically from answer where safe),
+        or splits sentences/bullets deterministically from answer_text.
         """
         if not answer_text or not answer_text.strip():
             return []
@@ -70,16 +71,44 @@ class GroundingVerifierService:
         extracted: List[Tuple[str, List[int]]] = []
 
         if proposed_claims:
+            answer_sentences = [s.strip() for s in re.split(r"(?<=[.!?])\s+|\n+", clean_text) if s.strip()]
+            all_answer_cids = citation_verifier.extract_inline_citation_ids(clean_text)
+
             for p in proposed_claims:
-                claim_text = p.claim_text.strip()
-                if len(claim_text) > 5 and not claim_text.lower().startswith(("hello", "hi", "sure", "here is")):
-                    inline_ids = citation_verifier.extract_inline_citation_ids(claim_text)
-                    merged_ids = sorted(set(p.citation_ids) | set(inline_ids))
-                    extracted.append((claim_text, merged_ids))
+                raw_text = p.claim_text.strip()
+                clean_claim = re.sub(r"\[[\d\s,;\-]+\]", "", raw_text).strip()
+                if len(clean_claim) <= 5 or clean_claim.lower().startswith(("hello", "hi", "sure", "here is")):
+                    continue
+
+                inline_ids = citation_verifier.extract_inline_citation_ids(raw_text)
+                merged_ids = set(p.citation_ids) | set(inline_ids)
+
+                # Deterministic repair: if citation_ids is empty, resolve from matching sentence in answer_text
+                if not merged_ids:
+                    for sent in answer_sentences:
+                        sent_cids = citation_verifier.extract_inline_citation_ids(sent)
+                        if not sent_cids:
+                            continue
+                        clean_sent = re.sub(r"\[[\d\s,;\-]+\]", "", sent).strip()
+                        if (
+                            clean_claim.lower() == clean_sent.lower()
+                            or clean_claim.lower() in clean_sent.lower()
+                            or clean_sent.lower() in clean_claim.lower()
+                        ):
+                            merged_ids.update(sent_cids)
+                            break
+
+                # If still empty and there's a single claim matching the answer with citations
+                if not merged_ids and len(proposed_claims) == 1 and all_answer_cids:
+                    if clean_claim.lower() in clean_text.lower() or clean_text.lower() in clean_claim.lower():
+                        merged_ids.update(all_answer_cids)
+
+                extracted.append((clean_claim, sorted(merged_ids)))
+
             if extracted:
                 return extracted
 
-        # Fallback: Deterministic sentence and list splitting
+        # Fallback: Deterministic sentence and list splitting from answer_text
         lines = [line.strip() for line in clean_text.split("\n") if line.strip()]
         for line in lines:
             # Check for bullet points or numbered lists

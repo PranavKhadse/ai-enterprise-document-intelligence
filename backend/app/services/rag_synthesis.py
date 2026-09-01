@@ -13,6 +13,7 @@ from backend.app.schemas.rag import (
     ClaimVerification,
     GroundingStatus,
     LLMAnswerProposal,
+    LLMClaimProposal,
     RAGAnswer,
     RAGDiagnostics,
 )
@@ -156,11 +157,39 @@ class RAGSynthesisService:
             fallback_answer = f"Based on retrieved document '{top_item.document_title or 'Evidence'}': {top_item.text} [1]"
             proposed = LLMAnswerProposal(
                 answer=fallback_answer,
-                claims=[],
+                claims=[
+                    LLMClaimProposal(
+                        claim_text=f"Based on retrieved document '{top_item.document_title or 'Evidence'}': {top_item.text}",
+                        citation_ids=[1],
+                    )
+                ],
                 citation_ids=[1],
                 insufficient_evidence=False,
                 conflicts_detected=False,
             )
+        else:
+            # Deterministic post-processing repair: sync claim citation_ids if omitted by LLM but present in answer
+            if proposed.claims:
+                ans_cids = self.cit_verifier.extract_inline_citation_ids(proposed.answer)
+                ans_sentences = [s.strip() for s in re.split(r"(?<=[.!?])\s+|\n+", proposed.answer) if s.strip()]
+                for clm in proposed.claims:
+                    if not clm.citation_ids:
+                        inline_in_claim = self.cit_verifier.extract_inline_citation_ids(clm.claim_text)
+                        if inline_in_claim:
+                            clm.citation_ids = inline_in_claim
+                        else:
+                            clean_c = re.sub(r"\[[\d\s,;\-]+\]", "", clm.claim_text).strip().lower()
+                            for sent in ans_sentences:
+                                s_cids = self.cit_verifier.extract_inline_citation_ids(sent)
+                                if not s_cids:
+                                    continue
+                                clean_s = re.sub(r"\[[\d\s,;\-]+\]", "", sent).strip().lower()
+                                if clean_c == clean_s or clean_c in clean_s or clean_s in clean_c:
+                                    clm.citation_ids = s_cids
+                                    break
+                            if not clm.citation_ids and len(proposed.claims) == 1 and ans_cids:
+                                if clean_c in proposed.answer.lower():
+                                    clm.citation_ids = list(ans_cids)
 
         # 3. Step 3: Deterministic Citation Verification
         t_cit_start = time.perf_counter()
